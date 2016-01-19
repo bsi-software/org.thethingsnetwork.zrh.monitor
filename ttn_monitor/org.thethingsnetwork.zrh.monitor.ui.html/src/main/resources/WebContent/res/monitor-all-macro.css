@@ -1,0 +1,23 @@
+//@include("scout-module.css")
+//@include("heatmap-module.css")
+//@include("leaflet.css")
+
+.desktop-navigation {
+    background: #0071BC;
+}
+
+.view-button-tab.selected {
+    background: #0071BC;
+}
+
+.outline-overview-content {
+	background: url("TheThingsNetwork.png")  center center no-repeat;
+}
+
+.outline-overview-icon {
+    visibility: hidden;
+}
+
+.outline-overview-title {
+    visibility: hidden;
+}

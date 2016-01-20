@@ -10,7 +10,6 @@ import org.eclipse.scout.rt.client.ui.desktop.AbstractDesktop;
 import org.eclipse.scout.rt.client.ui.desktop.outline.AbstractOutlineViewButton;
 import org.eclipse.scout.rt.client.ui.desktop.outline.IOutline;
 import org.eclipse.scout.rt.client.ui.desktop.outline.pages.IPage;
-import org.eclipse.scout.rt.client.ui.form.ScoutInfoForm;
 import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.Order;
 import org.eclipse.scout.rt.platform.util.CollectionUtility;
@@ -75,16 +74,16 @@ public class Desktop extends AbstractDesktop {
 		}
 
 		@Order(1000.0)
-		public class ReconnectMenu extends AbstractMenu {
+		public class ResetModelMenu extends AbstractMenu {
 
 			@Override
 			protected String getConfiguredText() {
-				return TEXTS.get("Reconnect");
+				return TEXTS.get("ResetModel");
 			}
 
 			@Override
 			protected void execAction() {
-				BEANS.get(TheThingsNetworkMqttClient.class).reconnect();
+				BEANS.get(TheThingsNetworkMqttClient.class).getModel().reset();
 			}
 		}
 
@@ -99,30 +98,6 @@ public class Desktop extends AbstractDesktop {
 			@Override
 			protected void execAction() {
 				ClientSessionProvider.currentSession(ClientSession.class).stop();
-			}
-		}
-	}
-
-	@Order(3000)
-	public class HelpMenu extends AbstractMenu {
-
-		@Override
-		protected String getConfiguredText() {
-			return TEXTS.get("Help");
-		}
-
-		@Order(1000)
-		public class AboutMenu extends AbstractMenu {
-
-			@Override
-			protected String getConfiguredText() {
-				return TEXTS.get("About");
-			}
-
-			@Override
-			protected void execAction() {
-				ScoutInfoForm form = new ScoutInfoForm();
-				form.startModify();
 			}
 		}
 	}

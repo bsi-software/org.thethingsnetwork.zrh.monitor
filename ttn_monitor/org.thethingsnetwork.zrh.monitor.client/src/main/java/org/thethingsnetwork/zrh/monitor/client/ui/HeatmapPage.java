@@ -21,7 +21,7 @@ public class HeatmapPage extends AbstractPageWithNodes {
 
   @Override
   protected String getConfiguredTitle() {
-    return TEXTS.get("Heatmap");
+    return TEXTS.get("LiveMap");
   }
 
   @Override

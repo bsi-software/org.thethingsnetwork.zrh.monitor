@@ -1,8 +1,8 @@
 package org.thethingsnetwork.zrh.monitor.model;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 // TODO initially populate gateways using http://ttnstatus.org/gateways
 public class TheThingsNetworkModel {
@@ -12,8 +12,7 @@ public class TheThingsNetworkModel {
 	private Map<String, Node> m_node = null;
 	
 	public TheThingsNetworkModel() {
-		m_gateway = new HashMap<String, Gateway>();
-		m_node = new HashMap<String, Node>();
+		reset();
 	}
 	
 	public void addMessage(String message) {
@@ -58,6 +57,9 @@ public class TheThingsNetworkModel {
 		}
 	}
 
+	/**
+	 * @return a copy of the set of the currently known gateway eui. copy is needed to avoid concurrent update issues 
+	 */
 	public Set<String> getGatewayEuis() {
 		return m_gateway.keySet();
 	}
@@ -72,5 +74,10 @@ public class TheThingsNetworkModel {
 	
 	public Node getNode(String eui) {
 		return m_node.get(eui);
+	}
+	
+	public void reset() {
+		m_gateway = new ConcurrentHashMap<String, Gateway>();
+		m_node = new ConcurrentHashMap<String, Node>();
 	}
 }

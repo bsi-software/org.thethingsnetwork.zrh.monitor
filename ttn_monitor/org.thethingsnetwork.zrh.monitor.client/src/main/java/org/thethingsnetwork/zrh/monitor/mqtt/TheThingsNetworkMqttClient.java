@@ -7,9 +7,17 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.eclipse.scout.rt.client.context.ClientRunContext;
+import org.eclipse.scout.rt.client.job.ModelJobs;
+import org.eclipse.scout.rt.client.session.ClientSessionProvider;
+import org.eclipse.scout.rt.client.ui.desktop.IDesktop;
+import org.eclipse.scout.rt.client.ui.form.IForm;
 import org.eclipse.scout.rt.platform.ApplicationScoped;
+import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.config.CONFIG;
+import org.eclipse.scout.rt.platform.context.RunMonitor;
 import org.eclipse.scout.rt.platform.util.StringUtility;
+import org.eclipse.scout.rt.platform.util.concurrent.IRunnable;
 import org.eclipse.scout.rt.shared.TEXTS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +25,15 @@ import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.MqttBrokerProper
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.MqttClientIdProperty;
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.MqttGatewaysTopicProperty;
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.MqttNodesTopicProperty;
+import org.thethingsnetwork.zrh.monitor.client.ui.HeatmapForm;
 import org.thethingsnetwork.zrh.monitor.model.TheThingsNetworkModel;
 
 @ApplicationScoped
 public class TheThingsNetworkMqttClient implements MqttCallback {
 	private static final Logger LOG = LoggerFactory.getLogger(TheThingsNetworkMqttClient.class);
+
+	// link to scout run context
+	private ClientRunContext m_clientRunContext;
 
 	private String m_broker = null;
 	private String m_clientId = null;
@@ -103,10 +115,30 @@ public class TheThingsNetworkMqttClient implements MqttCallback {
 
 	@Override
 	public void messageArrived(String topic, MqttMessage message) throws Exception {
-//		LOG.info(TEXTS.get("MqttMessage") + " topic:" + topic + " message:" + message);
+		LOG.debug(TEXTS.get("MqttMessage") + " topic:" + topic + " message:" + message);
 		
 		String messageData = new String(message.getPayload());
 		m_model.addMessage(messageData);
+		
+	    ModelJobs.schedule(new IRunnable() {
+
+	        @Override
+	        public void run() throws Exception {
+	          IDesktop desktop = ClientSessionProvider.currentSession().getDesktop();
+	          IForm form = desktop.getPageDetailForm();
+	          
+	          if(form instanceof HeatmapForm) {
+	        	((HeatmapForm)form).getLiveMapField().refresh();
+	          }
+	        }
+
+	      }, ModelJobs.newInput(m_clientRunContext
+	          .withRunMonitor(BEANS.get(RunMonitor.class))));
+		
+	}
+
+	public void setRunContext(ClientRunContext context) {
+		m_clientRunContext = context;
 	}
 	
 	public TheThingsNetworkModel getModel() {

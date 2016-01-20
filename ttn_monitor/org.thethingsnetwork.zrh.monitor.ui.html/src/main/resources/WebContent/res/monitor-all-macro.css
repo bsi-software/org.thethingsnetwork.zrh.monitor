@@ -21,3 +21,7 @@
 .outline-overview-title {
     visibility: hidden;
 }
+
+.taskbar-logo {
+    width: 66px;
+}

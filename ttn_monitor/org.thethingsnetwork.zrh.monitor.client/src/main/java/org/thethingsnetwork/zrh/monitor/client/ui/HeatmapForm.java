@@ -44,7 +44,7 @@ import org.thethingsnetwork.zrh.monitor.mqtt.TheThingsNetworkMqttClient;
 public class HeatmapForm extends AbstractForm {
 
 	public static final Float INTENSITY_FLOOR = 1000.0f;
-	public static final Float INTENSITY_MESSAGE = 100.0f;
+	public static final Float INTENSITY_MESSAGE = 1000.0f;
 	
 	private P_ViewParameterListener m_viewParameterListener = new P_ViewParameterListener();
 
@@ -194,7 +194,6 @@ public class HeatmapForm extends AbstractForm {
 
 				public void reset() {
 					setViewParameter(getConfiguredViewParameter());
-					resetHeatPoints();
 				}
 
 				public void refresh() {
@@ -321,24 +320,6 @@ public class HeatmapForm extends AbstractForm {
 					}
 				}
 			}
-		}
-
-		@Order(40)
-		public class RefreshMenu extends AbstractMenu {
-			@Override
-			protected String getConfiguredText() {
-				return TEXTS.get("Refresh");
-			}
-
-			@Override
-			protected void execAction() {
-				getLiveMapField().refresh();
-			}
-
-			@Override
-			protected String getConfiguredKeyStroke() {
-				return "F5";
-			}			
 		}
 
 		@Order(40)

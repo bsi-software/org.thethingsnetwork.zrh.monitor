@@ -28,4 +28,9 @@ public class HeatmapPage extends AbstractPageWithNodes {
   protected Class<? extends IForm> getConfiguredDetailForm() {
     return HeatmapForm.class;
   }
+  
+  @Override
+	protected void execInitDetailForm() {
+		((HeatmapForm)getDetailForm()).getCloseButton().setVisible(false);
+	}
 }

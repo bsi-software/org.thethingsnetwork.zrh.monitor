@@ -1,11 +1,13 @@
 package org.thethingsnetwork.zrh.monitor.client.ui;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.scout.rt.client.ui.action.menu.AbstractMenu;
 import org.eclipse.scout.rt.client.ui.action.menu.IMenuType;
+import org.eclipse.scout.rt.client.ui.action.menu.TableMenuType;
 import org.eclipse.scout.rt.client.ui.action.menu.TreeMenuType;
 import org.eclipse.scout.rt.client.ui.basic.table.AbstractTable;
 import org.eclipse.scout.rt.client.ui.basic.table.ITableRow;
@@ -21,6 +23,8 @@ import org.eclipse.scout.rt.platform.exception.ProcessingException;
 import org.eclipse.scout.rt.platform.util.CollectionUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
 import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
+import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.HeatmapViewParameter;
+import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.MapPoint;
 import org.thethingsnetwork.zrh.monitor.client.ui.GatewayTablePage.Table.EuiColumn;
 import org.thethingsnetwork.zrh.monitor.client.ui.GatewayTablePage.Table.LatitudeColumn;
 import org.thethingsnetwork.zrh.monitor.client.ui.GatewayTablePage.Table.LongitudeColumn;
@@ -127,6 +131,32 @@ public class GatewayTablePage extends AbstractPageWithTable<GatewayTablePage.Tab
 	}
 
 	public class Table extends AbstractTable {
+
+		
+		@Order(1000.0)
+		public class ShowOnMapMenu extends AbstractMenu {
+			@Override
+			protected String getConfiguredText() {
+				return TEXTS.get("ShowOnMap");
+			}
+
+			@Override
+			protected Set<? extends IMenuType> getConfiguredMenuTypes() {
+				return CollectionUtility.hashSet(TableMenuType.SingleSelection);
+			}
+
+			@Override
+			protected void execAction() {
+				BigDecimal latitude = getTable().getLatitudeColumn().getSelectedValue();
+				BigDecimal longitude = getTable().getLongitudeColumn().getSelectedValue();
+				HeatmapViewParameter parameter = new HeatmapViewParameter(new MapPoint(latitude, longitude), 17);
+				
+				HeatmapForm form = new HeatmapForm();
+				form.getCloseButton().setVisible(true);
+				form.getLiveMapField().setViewParameter(parameter);
+				form.start();
+			}
+		}
 
 		public MessagesColumn getMessagesColumn() {
 			return getColumnSet().getColumnByClass(MessagesColumn.class);

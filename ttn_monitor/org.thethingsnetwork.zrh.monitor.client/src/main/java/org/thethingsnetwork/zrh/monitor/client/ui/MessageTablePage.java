@@ -77,6 +77,11 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 			TheThingsNetworkModel model = BEANS.get(TheThingsNetworkMqttClient.class).getModel();
 			Gateway g = model.getGateway(eui);
 			
+			// can be null if it is added in my nodes page and no message has yet been received
+			if(g == null) {
+				return;
+			}
+			
 			List<ITableRow> rows = new ArrayList<>();
 			Table t = getTable();
 			t.getGatewayEuiColumn().setDisplayable(false);
@@ -111,6 +116,11 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 		if(StringUtility.hasText(nodeEui)) {
 			TheThingsNetworkModel model = BEANS.get(TheThingsNetworkMqttClient.class).getModel();
 			Node n = model.getNode(nodeEui);
+			
+			// can be null if it is added in my nodes page and no message has yet been received
+			if(n == null) {
+				return;
+			}
 			
 			List<ITableRow> rows = new ArrayList<>();
 			Table t = getTable();

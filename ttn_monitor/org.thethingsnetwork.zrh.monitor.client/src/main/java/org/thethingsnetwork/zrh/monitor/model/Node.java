@@ -2,7 +2,6 @@ package org.thethingsnetwork.zrh.monitor.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.eclipse.scout.rt.platform.util.StringUtility;
@@ -10,7 +9,7 @@ import org.json.JSONObject;
 
 public class Node {
 	private String m_eui = "<default-node-eui>";
-	private Queue<Message> m_messages = null; 
+	private ArrayBlockingQueue<Message> m_messages = null; 
 	
 	public Node(String messageData, int messageQueueSize) {
 		JSONObject json = new JSONObject(messageData);
@@ -34,6 +33,12 @@ public class Node {
 	}
 	
 	public void addMessage(Message m) {
+		synchronized(m_messages) {
+			if(m_messages.remainingCapacity() == 0) {
+				m_messages.remove();
+			}
+		}
+
 		m_messages.add(m);
 	}
 

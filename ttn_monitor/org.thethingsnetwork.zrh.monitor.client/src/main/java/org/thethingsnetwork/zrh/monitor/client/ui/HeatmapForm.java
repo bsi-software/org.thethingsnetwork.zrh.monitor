@@ -11,6 +11,7 @@ import org.eclipse.scout.rt.client.ui.action.menu.AbstractMenu;
 import org.eclipse.scout.rt.client.ui.form.AbstractForm;
 import org.eclipse.scout.rt.client.ui.form.AbstractFormHandler;
 import org.eclipse.scout.rt.client.ui.form.fields.bigdecimalfield.AbstractBigDecimalField;
+import org.eclipse.scout.rt.client.ui.form.fields.button.AbstractCloseButton;
 import org.eclipse.scout.rt.client.ui.form.fields.groupbox.AbstractGroupBox;
 import org.eclipse.scout.rt.client.ui.form.fields.integerfield.AbstractIntegerField;
 import org.eclipse.scout.rt.client.ui.form.fields.sequencebox.AbstractSequenceBox;
@@ -27,6 +28,7 @@ import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.M
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.MapLatitudeProperty;
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.MapLongitudeProperty;
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.MapZoomProperty;
+import org.thethingsnetwork.zrh.monitor.client.ui.HeatmapForm.MainBox.CloseButton;
 import org.thethingsnetwork.zrh.monitor.client.ui.HeatmapForm.MainBox.TopBox;
 import org.thethingsnetwork.zrh.monitor.client.ui.HeatmapForm.MainBox.TopBox.LiveMapField;
 import org.thethingsnetwork.zrh.monitor.client.ui.HeatmapForm.MainBox.TopBox.ViewParamterBox;
@@ -68,6 +70,10 @@ public class HeatmapForm extends AbstractForm {
 
 	public ViewParamterBox getMySequenceBox() {
 		return getFieldByClass(ViewParamterBox.class);
+	}
+
+	public CloseButton getCloseButton() {
+		return getFieldByClass(CloseButton.class);
 	}
 
 	public TopBox getTopBox() {
@@ -339,6 +345,20 @@ public class HeatmapForm extends AbstractForm {
 				return "F6";
 			}			
 		}
+
+		@Order(2000.0)
+		public class CloseButton extends AbstractCloseButton {
+//			@Override
+//			protected String getConfiguredLabel() {
+//				return TEXTS.get("Close");
+//			}
+
+//			@Override
+//			protected void execClickAction() {
+//			}
+		}
+		
+		
 	}
 
 	public class PageFormHandler extends AbstractFormHandler {

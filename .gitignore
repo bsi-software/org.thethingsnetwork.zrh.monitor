@@ -13,3 +13,6 @@ hs_err_pid*
 
 # exclude metadata folder
 ttn_monitor/.metadata/
+
+# exclude maven target folders
+ttn_monitor/**/target/

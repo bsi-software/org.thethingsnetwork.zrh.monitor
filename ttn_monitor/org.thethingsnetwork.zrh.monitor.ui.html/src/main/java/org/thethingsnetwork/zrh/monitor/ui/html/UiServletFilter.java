@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.scout.rt.platform.BEANS;
+import org.eclipse.scout.rt.server.commons.authentication.AnonymousAccessController;
 import org.eclipse.scout.rt.server.commons.authentication.ConfigFileCredentialVerifier;
 import org.eclipse.scout.rt.server.commons.authentication.DevelopmentAccessController;
 import org.eclipse.scout.rt.server.commons.authentication.FormBasedAccessController;
@@ -28,46 +29,22 @@ import org.eclipse.scout.rt.server.commons.authentication.TrivialAccessControlle
  */
 public class UiServletFilter implements Filter {
 
-  private TrivialAccessController m_trivialAccessController;
-  private FormBasedAccessController m_formBasedAccessController;
-  private DevelopmentAccessController m_developmentAccessController;
+  private final AnonymousAccessController m_anonymousAccessController = BEANS.get(AnonymousAccessController.class);
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
-    m_trivialAccessController = BEANS.get(TrivialAccessController.class)
-        .init(new TrivialAuthConfig()
-            .withExclusionFilter(filterConfig.getInitParameter("filter-exclude"))
-            .withLoginPageInstalled(true));
-    m_formBasedAccessController = BEANS.get(FormBasedAccessController.class)
-        .init(new FormBasedAuthConfig()
-            .withCredentialVerifier(BEANS.get(ConfigFileCredentialVerifier.class)));
-    m_developmentAccessController = BEANS.get(DevelopmentAccessController.class).init();
+	  m_anonymousAccessController.init();
   }
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     final HttpServletRequest req = (HttpServletRequest) request;
     final HttpServletResponse resp = (HttpServletResponse) response;
-
-    if (m_trivialAccessController.handle(req, resp, chain)) {
-      return;
-    }
-
-    if (m_formBasedAccessController.handle(req, resp, chain)) {
-      return;
-    }
-
-    if (m_developmentAccessController.handle(req, resp, chain)) {
-      return;
-    }
-
-    BEANS.get(ServletFilterHelper.class).forwardToLoginForm(req, resp);
+    m_anonymousAccessController.handle(req, resp, chain);
   }
 
   @Override
   public void destroy() {
-    m_developmentAccessController.destroy();
-    m_formBasedAccessController.destroy();
-    m_trivialAccessController.destroy();
+	  m_anonymousAccessController.destroy();
   }
 }

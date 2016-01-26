@@ -1,32 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-  <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.thethingsnetwork.zrh.monitor</groupId>
-    <artifactId>org.thethingsnetwork.zrh.monitor</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-    <relativePath>../org.thethingsnetwork.zrh.monitor/pom.xml</relativePath>
-  </parent>
+	<parent>
+		<groupId>org.thethingsnetwork.zrh.monitor</groupId>
+		<artifactId>org.thethingsnetwork.zrh.monitor</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../org.thethingsnetwork.zrh.monitor/pom.xml</relativePath>
+	</parent>
 
-  <artifactId>org.thethingsnetwork.zrh.monitor.ui.html.app.dev</artifactId>
-  <packaging>war</packaging>
+	<artifactId>org.thethingsnetwork.zrh.monitor.ui.html.app.dev</artifactId>
+	<packaging>war</packaging>
 
-  <name>TheThingsNetwork Monitor HTML UI Server Development</name>
+	<name>TheThingsNetwork Monitor HTML UI Server Development</name>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.eclipse.scout.rt</groupId>
-      <artifactId>org.eclipse.scout.dev.jetty</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.thethingsnetwork.zrh.monitor</groupId>
-      <artifactId>org.thethingsnetwork.zrh.monitor.ui.html</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipsescout.demo.widgets</groupId>
-      <artifactId>org.eclipsescout.demo.widgets.ui.html.custom</artifactId>
-    </dependency>
-  </dependencies>
+	<properties>
+		<docker.image.prefix>eclipsescout</docker.image.prefix>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.scout.rt</groupId>
+			<artifactId>org.eclipse.scout.dev.jetty</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.thethingsnetwork.zrh.monitor</groupId>
+			<artifactId>org.thethingsnetwork.zrh.monitor.ui.html</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipsescout.demo.widgets</groupId>
+			<artifactId>org.eclipsescout.demo.widgets.ui.html.custom</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>0.2.3</version>
+				<configuration>
+					<imageName>${docker.image.prefix}/${project.groupId}</imageName>
+					<dockerDirectory>.</dockerDirectory>
+					<resources>
+						<resource>
+							<!-- https://github.com/spotify/docker-maven-plugin/issues/68 -->
+							<!-- <targetPath>/</targetPath> -->
+							<directory>${project.build.directory}</directory>
+							<include>${project.build.finalName}.war</include>
+						</resource>
+					</resources>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

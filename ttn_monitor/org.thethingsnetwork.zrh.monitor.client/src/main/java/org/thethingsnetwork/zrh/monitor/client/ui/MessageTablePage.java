@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.scout.rt.client.context.ClientRunContexts;
 import org.eclipse.scout.rt.client.ui.action.menu.AbstractMenu;
 import org.eclipse.scout.rt.client.ui.action.menu.IMenuType;
 import org.eclipse.scout.rt.client.ui.action.menu.TableMenuType;
@@ -13,6 +14,8 @@ import org.eclipse.scout.rt.client.ui.basic.table.ITableRow;
 import org.eclipse.scout.rt.client.ui.basic.table.TableRow;
 import org.eclipse.scout.rt.client.ui.basic.table.columns.AbstractDateTimeColumn;
 import org.eclipse.scout.rt.client.ui.basic.table.columns.AbstractStringColumn;
+import org.eclipse.scout.rt.client.ui.desktop.IDesktop;
+import org.eclipse.scout.rt.client.ui.desktop.OpenUriAction;
 import org.eclipse.scout.rt.client.ui.desktop.outline.pages.AbstractPageWithTable;
 import org.eclipse.scout.rt.client.ui.messagebox.MessageBoxes;
 import org.eclipse.scout.rt.platform.BEANS;
@@ -39,12 +42,11 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 	private String m_gatewayEui;
 	private String m_nodeEui;
 
-
 	@Override
 	protected String getConfiguredTitle() {
 		return TEXTS.get("Messages");
 	}	
-	
+
 	@Order(1000.0)
 	public class RefreshMenu extends AbstractMenu {
 		@Override
@@ -67,25 +69,30 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 			return "F5";
 		}
 	}
-	
+
+	protected IDesktop getDesktop() {
+		return ClientRunContexts.copyCurrent().getDesktop();
+	}
+
+
 	@Override
 	protected void execLoadData(SearchFilter filter) throws ProcessingException {
 		String eui = getGatewayEui();
 		String nodeEui = getNodeEui();
-		
+
 		if(StringUtility.hasText(eui)) {
 			TheThingsNetworkModel model = BEANS.get(TheThingsNetworkMqttClient.class).getModel();
 			Gateway g = model.getGateway(eui);
-			
+
 			// can be null if it is added in my nodes page and no message has yet been received
 			if(g == null) {
 				return;
 			}
-			
+
 			List<ITableRow> rows = new ArrayList<>();
 			Table t = getTable();
 			t.getGatewayEuiColumn().setDisplayable(false);
-			
+
 			TimestampColumn timeCol =  t.getTimestampColumn();
 			TypeColumn typeCol = t.getTypeColumn();
 			NodeEuiColumn ndeEuiCol = t.getNodeEuiColumn();
@@ -93,64 +100,64 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 			CompleteTextColumn textCol = t.getCompleteTextColumn();
 			String txtStatus = TEXTS.get("TtnMessageStatus");
 			String txtPacket = TEXTS.get("TtnMessagePacket");
-			
+
 			// fill ttn gateway messages into scout table page
 			for(Message m : g.getMessages()) {
 				TableRow r = new TableRow(t.getColumnSet());
-				
+
 				r.getCellForUpdate(timeCol).setValue(m.getTimestamp());
 				r.getCellForUpdate(typeCol).setValue(m.isNodeMessage() ? txtPacket : txtStatus);
 				r.getCellForUpdate(ndeEuiCol).setValue(m.getNodeEui());
 				r.getCellForUpdate(dataCol).setValue(m.getData());
 				r.getCellForUpdate(textCol).setValue(m.getCompleteMessage());
-				
+
 				rows.add(r);
 			}
-			
+
 			getTable().discardAllRows();
 			getTable().addRows(rows);
-			
+
 			return;
 		}
-		
+
 		if(StringUtility.hasText(nodeEui)) {
 			TheThingsNetworkModel model = BEANS.get(TheThingsNetworkMqttClient.class).getModel();
 			Node n = model.getNode(nodeEui);
-			
+
 			// can be null if it is added in my nodes page and no message has yet been received
 			if(n == null) {
 				return;
 			}
-			
+
 			List<ITableRow> rows = new ArrayList<>();
 			Table t = getTable();
 			t.getTypeColumn().setDisplayable(false);
 			t.getNodeEuiColumn().setDisplayable(false);
-			
+
 			TimestampColumn timeCol =  t.getTimestampColumn();
 			GatewayEuiColumn gwyEuiCol = t.getGatewayEuiColumn();
 			DataColumn dataCol = t.getDataColumn();
 			CompleteTextColumn textCol = t.getCompleteTextColumn();
-			
+
 			// fill ttn gateway messages into scout table page
 			for(Message m : n.getMessages()) {
 				TableRow r = new TableRow(t.getColumnSet());
-				
+
 				r.getCellForUpdate(timeCol).setValue(m.getTimestamp());
 				r.getCellForUpdate(gwyEuiCol).setValue(m.getGatewayEui());
 				r.getCellForUpdate(dataCol).setValue(m.getData());
 				r.getCellForUpdate(textCol).setValue(m.getCompleteMessage());
-				
+
 				rows.add(r);
 			}
-			
+
 			getTable().discardAllRows();
 			getTable().addRows(rows);
-			
+
 			return;
 		}		
 	}
-	
+
 	public void setGatewayEui(String eui) {
 		m_gatewayEui = eui;
 	}
@@ -158,7 +165,7 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 	public String getGatewayEui() {
 		return m_gatewayEui;
 	}
-	
+
 	public void setNodeEui(String eui) {
 		m_nodeEui = eui;
 	}
@@ -166,14 +173,14 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 	public String getNodeEui() {
 		return m_nodeEui;
 	}
-	
+
 	public class Table extends AbstractTable {
-		
+
 		@Override
 		protected void execRowAction(ITableRow row) {
 			getMenuByClass(OpenMessageMenu.class).execAction();
 		}
-		
+
 		public GatewayEuiColumn getGatewayEuiColumn() {
 			return getColumnSet().getColumnByClass(GatewayEuiColumn.class);
 		}
@@ -209,7 +216,7 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 			protected int getConfiguredWidth() {
 				return 100;
 			}
-			
+
 			@Override
 			protected String getConfiguredFormat() {
 				return "yyyy.MM.dd HH:mm:ss.S";
@@ -282,14 +289,16 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 			protected int getConfiguredWidth() {
 				return 100;
 			}
-			
+
 			@Override
 			protected boolean getConfiguredVisible() {
 				return false;
 			}
 		}
+
 		@Order(1000.0)
 		public class OpenMessageMenu extends AbstractMenu {
+
 			@Override
 			protected String getConfiguredText() {
 				return TEXTS.get("OpenMessage");
@@ -312,6 +321,26 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 			@Override
 			protected String getConfiguredKeyStroke() {
 				return "F6";
+			}
+		}
+
+
+		@Order(2000.0)
+		public class OpenDjangoRestMenu extends AbstractMenu {
+			@Override
+			protected String getConfiguredText() {
+				return TEXTS.get("OpenRest");
+			}
+
+			@Override
+			protected Set<? extends IMenuType> getConfiguredMenuTypes() {
+				return CollectionUtility.hashSet(TableMenuType.SingleSelection);
+			}
+
+			@Override
+			protected void execAction() {
+				String restUrl = "http://thethingsnetwork.org/api/v0/nodes/" + m_nodeEui + "/";
+				getDesktop().openUri(restUrl, OpenUriAction.NEW_WINDOW);
 			}
 		}
 	}

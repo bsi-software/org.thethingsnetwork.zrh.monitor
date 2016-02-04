@@ -49,6 +49,12 @@ public final class ConfigProperties {
 
 	public static final String MQTT_NODES_KEY = "ttn.mqtt.nodes";
 	public static final String MQTT_NODES_DEFAULT = "nodes/+/packets";
+
+	public static final String REST_URL_GATEWAYS_KEY = "rest.url.gateways";
+	public static final String REST_URL_GATEWAYS_DEFAULT = "http://thethingsnetwork.org/api/v0/gateways/";
+
+	public static final String REST_URL_NODES_KEY = "rest.url.nodes";
+	public static final String REST_URL_NODES_DEFAULT = "http://thethingsnetwork.org/api/v0/nodes/";
 	
 	public static final String DB_AUTO_CREATE_KEY = "ttn.database.schema.autocreate";
 	public static final Boolean DB_AUTO_CREATE_DEFAULT = true;
@@ -174,6 +180,32 @@ public final class ConfigProperties {
 		@Override
 		public String getKey() {
 			return MQTT_NODES_KEY;
+		}	  
+	}
+
+	public static class RestUrlGatewaysProperty extends AbstractStringConfigProperty {
+
+		@Override
+		protected String getDefaultValue() {
+			return REST_URL_GATEWAYS_DEFAULT;
+		}
+
+		@Override
+		public String getKey() {
+			return REST_URL_GATEWAYS_KEY;
+		}	  
+	}
+
+	public static class RestUrlNodesProperty extends AbstractStringConfigProperty {
+
+		@Override
+		protected String getDefaultValue() {
+			return REST_URL_NODES_DEFAULT;
+		}
+
+		@Override
+		public String getKey() {
+			return REST_URL_NODES_KEY;
 		}	  
 	}
 

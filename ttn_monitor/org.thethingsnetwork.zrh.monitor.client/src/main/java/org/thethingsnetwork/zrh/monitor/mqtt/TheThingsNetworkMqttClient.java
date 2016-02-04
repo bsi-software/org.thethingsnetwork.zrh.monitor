@@ -12,6 +12,7 @@ import org.eclipse.scout.rt.client.job.ModelJobs;
 import org.eclipse.scout.rt.client.session.ClientSessionProvider;
 import org.eclipse.scout.rt.client.ui.desktop.IDesktop;
 import org.eclipse.scout.rt.client.ui.form.IForm;
+import org.eclipse.scout.rt.client.ui.messagebox.MessageBoxes;
 import org.eclipse.scout.rt.platform.ApplicationScoped;
 import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.config.CONFIG;
@@ -103,7 +104,18 @@ public class TheThingsNetworkMqttClient implements MqttCallback {
 
 	@Override
 	public void connectionLost(Throwable t) {
-		// TODO add mqtt connection lost logic
+	    ModelJobs.schedule(new IRunnable() {
+
+	        @Override
+	        public void run() throws Exception {
+	        	MessageBoxes.createOk()
+	        		.withHeader(TEXTS.get("ConnectionLost"))
+	        		.withBody(TEXTS.get("UseReconnect")).show();
+	        }
+
+	      }, ModelJobs.newInput(m_clientRunContext
+	          .withRunMonitor(BEANS.get(RunMonitor.class))));
+	    
 		LOG.warn(TEXTS.get("MqttConnectionLost") + ", e:" + t.getLocalizedMessage());
 		t.printStackTrace();
 	}

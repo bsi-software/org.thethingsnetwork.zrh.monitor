@@ -13,13 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.server.commons.authentication.AnonymousAccessController;
-import org.eclipse.scout.rt.server.commons.authentication.ConfigFileCredentialVerifier;
-import org.eclipse.scout.rt.server.commons.authentication.DevelopmentAccessController;
-import org.eclipse.scout.rt.server.commons.authentication.FormBasedAccessController;
-import org.eclipse.scout.rt.server.commons.authentication.FormBasedAccessController.FormBasedAuthConfig;
-import org.eclipse.scout.rt.server.commons.authentication.ServletFilterHelper;
-import org.eclipse.scout.rt.server.commons.authentication.TrivialAccessController;
-import org.eclipse.scout.rt.server.commons.authentication.TrivialAccessController.TrivialAuthConfig;
 
 /**
  * <h3>{@link UiServletFilter}</h3>

@@ -10,21 +10,42 @@ import org.eclipse.scout.rt.platform.util.StringUtility;
 import org.json.JSONObject;
 
 public class Message {
-	public static final String FORMAT_TIMESTAMP = "yyyy-MM-ddHH:mm:ss.SSS";
 	
+	public static final String EUI = "eui";
+	public static final String NODE_EUI_1 = "node_eui";
+	public static final String NODE_EUI_2 = "nodeEui";
+	public static final String GATEWAY_EUI_1 = "gateway_eui";
+	public static final String GATEWAY_EUI_2 = "gatewayEui";
+	public static final String TIME = "time";
+	public static final String LATITUDE = "latitude";
+	public static final String LONGITUDE = "longitude";
+	public static final String FORMAT_TIMESTAMP = "yyyy-MM-ddHH:mm:ss.SSS";
+	public static final String DATA = "data";
+	
+	public static final int TYPE_GATEWAY = 1;
+	public static final int TYPE_NODE = 2;
+	public static final int SOURCE_GENERIC = 1;
+	public static final int SOURCE_NOISE = 2;
+	
+	private boolean m_parsedOk = true;
+	private int m_type = TYPE_GATEWAY;
+	private int m_source = SOURCE_GENERIC;
+	private boolean m_noiseMessage = false;
 	private Date m_timestamp = null;
 	private String m_gatewayEui = null;
 	private String m_nodeEui = null;
+	private String m_eui = null;
 	private String m_message = null;
 	private String m_data = null;
-	private boolean m_nodeMessage = false;
-	private boolean m_parsedOk = true;
+	private Double m_latitude = null;
+	private Double m_longitude = null;
+	
 
 	public Message(String messageData) {
 		m_message = messageData;
 		
 		JSONObject json = new JSONObject(messageData);
-		String time = json.getString("time");
+		String time = json.getString(TIME);
 		
 		// get timestamp
 		if(StringUtility.hasText(time)) {
@@ -44,15 +65,38 @@ public class Message {
 		}
 		
 		// gateway message
-		if(json.has("eui")) {
-			m_gatewayEui = json.getString("eui");
+		if(json.has(EUI)) {
+			m_gatewayEui = json.getString(EUI);
+			m_eui = m_gatewayEui;
 		}
 		// node message
+		else if(json.has(NODE_EUI_1) || json.has(NODE_EUI_2)) {
+			m_type = TYPE_NODE;
+			m_data = json.getString(DATA);
+			
+			if(json.has(NODE_EUI_1)) {
+				m_nodeEui = json.getString(NODE_EUI_1);
+				m_gatewayEui = json.getString(GATEWAY_EUI_1);				
+			}
+			else {
+				m_nodeEui = json.getString(NODE_EUI_2);
+				m_gatewayEui = json.getString(GATEWAY_EUI_2);				
+			}
+			
+			m_eui = m_nodeEui;
+		}
 		else {
-			m_nodeMessage = true;
-			m_nodeEui = json.getString("nodeEui");
-			m_gatewayEui = json.getString("gatewayEui");
-			m_data = json.getString("data");
+			// should not reach this place
+			System.err.println("WARNING: mqtt message does not meet expectation!");
+		}
+		
+		// location data
+		if(json.has(LATITUDE)) {
+			m_latitude = json.getDouble(LATITUDE);
+		}
+		
+		if(json.has(LONGITUDE)) {
+			m_longitude = json.getDouble(LONGITUDE);
 		}
 	}
 	
@@ -68,12 +112,24 @@ public class Message {
 		return m_gatewayEui;
 	}
 	
-	public boolean isNodeMessage() {
-		return m_nodeMessage;
-	}
-	
 	public String getNodeEui() {
 		return m_nodeEui;
+	}
+	
+	public String getEui() {
+		return m_eui;
+	}
+	
+	public boolean isNodeMessage() {
+		return m_type == TYPE_NODE;
+	}
+	
+	public Double getLatitude() {
+		return m_latitude;
+	}
+	
+	public Double getLongitude() {
+		return m_longitude;
 	}
 	
 	public String getData() {
@@ -84,6 +140,14 @@ public class Message {
 		return m_message;
 	}
 	
+	public void setSource(int source) {
+		m_source = source;
+	}
+	
+	public int getSource() {
+		return m_source;
+	}
+	
 	public String toString() {
 		if(isNodeMessage()) {
 			return "    " + m_timestamp + " data " + getNodeEui() + " message " + getData(); 
@@ -91,5 +155,13 @@ public class Message {
 		else {
 			return "    " + m_timestamp + " status"; 			
 		}
+	}
+	
+	public boolean isNoiseMessage() {
+		return m_noiseMessage;
+	}
+
+	public void setNoiseMessage(boolean noiseMessage) {
+		m_noiseMessage = noiseMessage;
 	}
 }

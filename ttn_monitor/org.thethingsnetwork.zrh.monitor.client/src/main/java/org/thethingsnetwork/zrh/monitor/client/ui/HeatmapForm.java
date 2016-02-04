@@ -4,7 +4,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.scout.rt.client.ui.action.menu.AbstractMenu;
@@ -15,6 +14,8 @@ import org.eclipse.scout.rt.client.ui.form.fields.button.AbstractCloseButton;
 import org.eclipse.scout.rt.client.ui.form.fields.groupbox.AbstractGroupBox;
 import org.eclipse.scout.rt.client.ui.form.fields.integerfield.AbstractIntegerField;
 import org.eclipse.scout.rt.client.ui.form.fields.sequencebox.AbstractSequenceBox;
+import org.eclipse.scout.rt.client.ui.messagebox.IMessageBox;
+import org.eclipse.scout.rt.client.ui.messagebox.MessageBoxes;
 import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.Order;
 import org.eclipse.scout.rt.platform.config.CONFIG;
@@ -23,7 +24,6 @@ import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.A
 import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.HeatPoint;
 import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.HeatmapViewParameter;
 import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.IHeatmapField;
-import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.IHeatmapListener;
 import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.MapPoint;
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.MapLatitudeProperty;
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.MapLongitudeProperty;
@@ -36,6 +36,7 @@ import org.thethingsnetwork.zrh.monitor.client.ui.HeatmapForm.MainBox.TopBox.Vie
 import org.thethingsnetwork.zrh.monitor.client.ui.HeatmapForm.MainBox.TopBox.ViewParamterBox.CenterYField;
 import org.thethingsnetwork.zrh.monitor.client.ui.HeatmapForm.MainBox.TopBox.ViewParamterBox.ZoomLevelField;
 import org.thethingsnetwork.zrh.monitor.model.Gateway;
+import org.thethingsnetwork.zrh.monitor.model.Location;
 import org.thethingsnetwork.zrh.monitor.model.TheThingsNetworkModel;
 import org.thethingsnetwork.zrh.monitor.mqtt.TheThingsNetworkMqttClient;
 
@@ -101,20 +102,20 @@ public class HeatmapForm extends AbstractForm {
 	protected void execInitForm() {
 		updateViewParamFields();
 		getLiveMapField().addPropertyChangeListener(IHeatmapField.PROP_VIEW_PARAMETER, m_viewParameterListener);
-		getLiveMapField().addHeatmapListener(new IHeatmapListener() {
-
-			@Override
-			public void mapClicked(MapPoint point) {				
-				// TODO add business logic when user clicks on map
-				// BigDecimal latitude = point.getX();
-				// BigDecimal longitude = point.getY();
-			}
-
-			@Override
-			public void heatPointsAdded(Collection<HeatPoint> points) {
-			}
-
-		});
+//		getLiveMapField().addHeatmapListener(new IHeatmapListener() {
+//
+//			@Override
+//			public void mapClicked(MapPoint point) {				
+//				// TODO add business logic when user clicks on map
+//				// BigDecimal latitude = point.getX();
+//				// BigDecimal longitude = point.getY();
+//			}
+//
+//			@Override
+//			public void heatPointsAdded(Collection<HeatPoint> points) {
+//			}
+//
+//		});
 	}
 
 	private void updateViewParamFields() {
@@ -146,6 +147,7 @@ public class HeatmapForm extends AbstractForm {
 		@Order(1000.0)
 		public class TopBox extends AbstractGroupBox {
 
+			
 			@Order(1000.0)
 			public class LiveMapField extends AbstractHeatmapField {
 
@@ -168,7 +170,30 @@ public class HeatmapForm extends AbstractForm {
 				protected void execInitField() {
 					resetHeatPoints();
 				}
-
+				
+				@Override
+				public void handleClick(MapPoint point) {
+					super.handleClick(point);
+					
+					TheThingsNetworkModel model = BEANS.get(TheThingsNetworkMqttClient.class).getModel();
+					Double latitude = point.getY().doubleValue();
+					Double longitude = point.getX().doubleValue();
+					
+					Gateway g = model.getGateway(new Location(latitude, longitude));
+					boolean isNode = false;
+					
+					if(g != null) {
+						int result = MessageBoxes.createYesNo()
+		        		.withHeader(TEXTS.get("Gateway") + " " + g.getEui())
+		        		.withBody(TEXTS.get("AddToMyGateways") + ": " + g.getLocation())
+		        		.show();
+						
+						if(result == IMessageBox.YES_OPTION) {
+							model.addToFavorites(g.getEui(), isNode);
+						}
+					}
+				}
+				
 				private void resetHeatPoints() {
 					TheThingsNetworkModel model = BEANS.get(TheThingsNetworkMqttClient.class).getModel();
 					List<HeatPoint> heatPoints = new ArrayList<>();

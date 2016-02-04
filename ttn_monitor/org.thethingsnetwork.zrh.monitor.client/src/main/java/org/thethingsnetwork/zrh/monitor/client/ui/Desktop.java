@@ -74,6 +74,20 @@ public class Desktop extends AbstractDesktop {
 		}
 
 		@Order(1000.0)
+		public class ReconnectMenu extends AbstractMenu {
+
+			@Override
+			protected String getConfiguredText() {
+				return TEXTS.get("Reconnect");
+			}
+
+			@Override
+			protected void execAction() {
+				BEANS.get(TheThingsNetworkMqttClient.class).reconnect();
+			}
+		}
+
+		@Order(1000.0)
 		public class ResetModelMenu extends AbstractMenu {
 
 			@Override

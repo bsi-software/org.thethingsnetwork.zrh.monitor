@@ -2,6 +2,8 @@ package org.thethingsnetwork.zrh.monitor.client.ui;
 
 import java.math.BigDecimal;
 
+import javax.xml.bind.ValidationException;
+
 import org.eclipse.scout.rt.client.ui.form.AbstractForm;
 import org.eclipse.scout.rt.client.ui.form.fields.bigdecimalfield.AbstractBigDecimalField;
 import org.eclipse.scout.rt.client.ui.form.fields.booleanfield.AbstractBooleanField;

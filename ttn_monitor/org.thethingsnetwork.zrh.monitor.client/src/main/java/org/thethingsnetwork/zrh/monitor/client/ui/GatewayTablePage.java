@@ -1,5 +1,7 @@
 package org.thethingsnetwork.zrh.monitor.client.ui;
 
+import org.eclipse.scout.rt.shared.TEXTS;
+import org.thethingsnetwork.zrh.monitor.client.ui.DeviceTablePage.Table.AddToMyDeviceMenu;
 import org.thethingsnetwork.zrh.monitor.client.ui.DeviceTablePage.Table.NoiseColumn;
 
 public class GatewayTablePage extends DeviceTablePage {
@@ -10,5 +12,6 @@ public class GatewayTablePage extends DeviceTablePage {
 		super(title, IS_NODE_PAGE);
 		
 		getTable().getColumnSet().getColumnByClass(NoiseColumn.class).setDisplayable(false);
+		getTable().getMenu(AddToMyDeviceMenu.class).setText(TEXTS.get("AddToMyGatewaysPage"));
 	} 
 }

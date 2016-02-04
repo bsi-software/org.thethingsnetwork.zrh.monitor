@@ -34,6 +34,7 @@ import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.H
 import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.MapPoint;
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.RestUrlGatewaysProperty;
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.RestUrlNodesProperty;
+import org.thethingsnetwork.zrh.monitor.client.ui.DeviceTablePage.Table.AddToMyDeviceMenu;
 import org.thethingsnetwork.zrh.monitor.client.ui.DeviceTablePage.Table.EuiColumn;
 import org.thethingsnetwork.zrh.monitor.client.ui.DeviceTablePage.Table.LatitudeColumn;
 import org.thethingsnetwork.zrh.monitor.client.ui.DeviceTablePage.Table.LongitudeColumn;
@@ -188,6 +189,7 @@ public class DeviceTablePage extends AbstractPageWithTable<DeviceTablePage.Table
 	public void setFavoritesPage(boolean isFavoritePage) {
 		m_favoritesOnly = isFavoritePage;
 		getTable().getMenuByClass(RemoveMenu.class).setVisible(m_favoritesOnly);
+		getTable().getMenuByClass(AddToMyDeviceMenu.class).setVisible(!m_favoritesOnly);
 	}
 
 	public boolean isFavoritesPage() {
@@ -203,7 +205,6 @@ public class DeviceTablePage extends AbstractPageWithTable<DeviceTablePage.Table
 				((HeaderCell) hc).setText(title);
 			}
 		}
-
 
 		@Order(1000.0)
 		public class EditInfoMenu extends AbstractMenu {
@@ -250,16 +251,21 @@ public class DeviceTablePage extends AbstractPageWithTable<DeviceTablePage.Table
 					String name = form.getNameField().getValue();
 					boolean noise = form.getNoiseField().getValue();
 					
-					// TODO first check if lat & long available, then get value
+					device.setName(name);
+					
+					if(device instanceof Node) {
+						((Node)device).setNoiseNode(noise);						
+					}
+					
 					if(!form.getLatitudeField().isEmpty() && !form.getLongitudeField().isEmpty()) {
 						double latitude = form.getLatitudeField().getValue().doubleValue();
 						double longitude = form.getLongitudeField().getValue().doubleValue();
 						Location location = new Location(latitude, longitude);
 						device.setLocation(location);
 					}
-					
-					device.setName(name);
-					((Node)device).setNoiseNode(noise);
+					else {
+						device.setLocation(null);
+					}
 
 					reloadPage();
 				}
@@ -292,7 +298,31 @@ public class DeviceTablePage extends AbstractPageWithTable<DeviceTablePage.Table
 			}
 		}
 
-		@Order(2000.0)
+
+		@Order(2500.0)
+		public class AddToMyDeviceMenu extends AbstractMenu {
+			@Override
+			protected String getConfiguredText() {
+				return TEXTS.get("AddToMyDevices");
+			}
+
+			@Override
+			protected Set<? extends IMenuType> getConfiguredMenuTypes() {
+				return CollectionUtility.hashSet(TableMenuType.SingleSelection, TableMenuType.MultiSelection);
+			}
+
+			@Override
+			protected void execAction() {
+				TheThingsNetworkModel model = BEANS.get(TheThingsNetworkMqttClient.class).getModel();
+
+				for(ITableRow row: getTable().getSelectedRows()) {
+					String eui = (String) row.getKeyValues().get(0);
+					model.addToFavorites(eui, m_isNodePage);
+				}
+			}
+		}
+
+		@Order(3000.0)
 		public class OpenRestMenu extends AbstractMenu {
 			@Override
 			protected String getConfiguredText() {

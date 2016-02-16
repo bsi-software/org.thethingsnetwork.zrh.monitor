@@ -52,11 +52,5 @@
 			<artifactId>org.eclipse.scout.rt.client.test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- scout jdbc -->
-		<dependency>
-			<groupId>org.apache.derby</groupId>
-			<artifactId>derby</artifactId>
-		</dependency>
-
 	</dependencies>
 </project>

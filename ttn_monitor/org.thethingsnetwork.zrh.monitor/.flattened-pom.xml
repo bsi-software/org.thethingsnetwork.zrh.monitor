@@ -107,7 +107,6 @@
     <master_plugin_flatten_version>1.0.0</master_plugin_flatten_version>
     <master_plugin_release_version>2.5.3</master_plugin_release_version>
     <master_plugin_jar_version>2.6</master_plugin_jar_version>
-    <apache.derby.version>10.11.1.1</apache.derby.version>
     <master_deploy_ReleaseId>repo.eclipse.org</master_deploy_ReleaseId>
     <master_plugin_jasmine_version>2.0</master_plugin_jasmine_version>
     <master_test_argLine>${master_test_jacocoArgLine} -Xms512m -Xmx2048m
@@ -182,11 +181,6 @@
         <groupId>org.thethingsnetwork.zrh.monitor</groupId>
         <artifactId>org.thethingsnetwork.zrh.monitor.ui.html</artifactId>
         <version>${org.thethingsnetwork.zrh.monitor.org.thethingsnetwork.zrh.monitor.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.derby</groupId>
-        <artifactId>derby</artifactId>
-        <version>${apache.derby.version}</version>
       </dependency>
       <dependency>
         <groupId>org.eclipse.paho</groupId>

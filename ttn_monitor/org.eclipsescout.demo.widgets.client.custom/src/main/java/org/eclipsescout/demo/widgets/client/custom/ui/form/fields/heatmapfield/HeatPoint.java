@@ -46,4 +46,8 @@ public class HeatPoint extends MapPoint {
     return true;
   }
 
+  @Override
+  public String toString() {
+    return "{lat:" + getX() + ", long:" + getY() + ", int:" + getIntensity() + "}";
+  }
 }

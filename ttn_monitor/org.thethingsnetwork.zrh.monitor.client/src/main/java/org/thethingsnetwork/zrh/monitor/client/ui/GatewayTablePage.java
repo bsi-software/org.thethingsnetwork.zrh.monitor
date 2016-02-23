@@ -12,6 +12,6 @@ public class GatewayTablePage extends DeviceTablePage {
 		super(title, IS_NODE_PAGE);
 		
 		getTable().getColumnSet().getColumnByClass(NoiseColumn.class).setDisplayable(false);
-		getTable().getMenu(AddToMyDeviceMenu.class).setText(TEXTS.get("AddToMyGatewaysPage"));
+		getTable().getMenuByClass(AddToMyDeviceMenu.class).setText(TEXTS.get("AddToMyGatewaysPage"));
 	} 
 }

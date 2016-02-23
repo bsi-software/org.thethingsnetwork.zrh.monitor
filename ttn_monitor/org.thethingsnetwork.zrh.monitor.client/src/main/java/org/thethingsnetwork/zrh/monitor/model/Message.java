@@ -3,6 +3,7 @@ package org.thethingsnetwork.zrh.monitor.model;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -135,6 +136,24 @@ public class Message {
 	public String getData() {
 		return m_data;
 	}
+
+	/**
+	 * @return base 64 decoded data. Null if data is null.
+	 */
+	public String getPlainData() {
+		if(m_data == null) {
+			return null;
+		}
+		
+		byte [] data = Base64.getDecoder().decode(m_data);
+		StringBuffer plain = new StringBuffer();
+
+		for(int i = 0; i < data.length; i++) {
+			plain.append((char)data[i]);
+		}
+
+		return plain.toString();
+	}	
 	
 	public String getCompleteMessage() {
 		return m_message;
@@ -163,5 +182,50 @@ public class Message {
 
 	public void setNoiseMessage(boolean noiseMessage) {
 		m_noiseMessage = noiseMessage;
+	}
+	
+	/**
+	 * @return max noise value for this message. in case this is not a noise message 0 is returned.
+	 */
+	public int getMaxNoise() {
+		if(!isNoiseMessage()) {
+			return 0;
+		}
+		
+		String data = getPlainData();
+		String text = data.substring(0, 4);
+		int value = Integer.parseInt(text, 16);
+		
+		return value;
+	}
+	
+	/**
+	 * @return accumulated noise value for this message. in case this is not a noise message 0 is returned.
+	 */
+	public int getAccNoise() {
+		if(!isNoiseMessage()) {
+			return 0;
+		}
+		
+		String data = getPlainData();
+		String text = data.substring(4, 8);
+		int value = Integer.parseInt(text, 16);
+		
+		return value;
+	}
+	
+	/**
+	 * @return sample count for this noise message. in case this is not a noise message 0 is returned.
+	 */
+	public int getCntNoise() {
+		if(!isNoiseMessage()) {
+			return 0;
+		}
+		
+		String data = getPlainData();
+		String text = data.substring(8, 12);
+		int value = Integer.parseInt(text, 16);
+		
+		return value;
 	}
 }

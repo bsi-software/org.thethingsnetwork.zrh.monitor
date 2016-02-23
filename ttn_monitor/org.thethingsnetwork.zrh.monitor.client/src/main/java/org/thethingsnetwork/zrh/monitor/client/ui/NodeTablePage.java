@@ -10,6 +10,6 @@ public class NodeTablePage extends DeviceTablePage {
 	public NodeTablePage(String title) {
 		super(title, IS_NODE_PAGE);
 		
-		getTable().getMenu(AddToMyDeviceMenu.class).setText(TEXTS.get("AddToMyNodesPage"));
+		getTable().getMenuByClass(AddToMyDeviceMenu.class).setText(TEXTS.get("AddToMyNodesPage"));
 	} 
 }

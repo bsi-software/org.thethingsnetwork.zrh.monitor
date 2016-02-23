@@ -30,16 +30,23 @@ public class TheThingsNetworkModel {
 		reset();
 	}
 
-	public void addMessage(String message) {
+	public Message addMessage(String message) {
 		Message m = new Message(message);
 
 		if(m.parsedOk()) {
 			if(m.isNodeMessage()) {
 				updateNodes(m);
+				
+				if(getNode(m.getNodeEui()).isNoiseNode()) {
+					m.setNoiseMessage(true);
+					m.setSource(Message.SOURCE_NOISE);
+				}
 			}
 
 			updateGateways(m);
 		}
+		
+		return m;
 	}
 
 	private void updateGateways(Message message) {
@@ -81,7 +88,15 @@ public class TheThingsNetworkModel {
 
 	public Gateway getGateway(String eui) {
 		Gateway gateway = m_gateway.get(eui);
-		return gateway != null ? gateway : new Gateway(null, 1);
+		
+		if(gateway != null) {
+			return gateway;
+		}
+		else {
+			gateway = new Gateway(eui, MESSAGE_QUEUE_SIZE);
+			m_gateway.put(eui, gateway);
+			return gateway;
+		}
 	}
 
 	public Gateway getGateway(Location location) {
@@ -107,7 +122,15 @@ public class TheThingsNetworkModel {
 
 	public Node getNode(String eui) {
 		Node node = m_node.get(eui);
-		return node != null ? node : new Node(null, 1);
+		
+		if(node != null) {
+			return node;
+		}
+		else {
+			node = new Node(eui, MESSAGE_QUEUE_SIZE);
+			m_node.put(eui, node);
+			return node;
+		}
 	}
 
 	public List<Message> getMessages() {
@@ -115,6 +138,20 @@ public class TheThingsNetworkModel {
 
 		for(String gatewayEui: getGatewayEuis()) {
 			messages.addAll(getGateway(gatewayEui).getMessages());
+		}
+
+		return messages;
+	}
+	
+	public List<Message> getNoiseMessages() {
+		List<Message> messages = new ArrayList<>();
+
+		for(String nodeEui: getNodeEuis()) {
+			Node node = getNode(nodeEui);
+			
+			if(node.isNoiseNode()) {
+				messages.addAll(node.getMessages());
+			}
 		}
 
 		return messages;

@@ -18,7 +18,6 @@ import org.eclipse.scout.rt.client.ui.basic.table.columns.AbstractStringColumn;
 import org.eclipse.scout.rt.client.ui.desktop.IDesktop;
 import org.eclipse.scout.rt.client.ui.desktop.OpenUriAction;
 import org.eclipse.scout.rt.client.ui.desktop.outline.pages.AbstractPageWithTable;
-import org.eclipse.scout.rt.client.ui.messagebox.MessageBoxes;
 import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.Order;
 import org.eclipse.scout.rt.platform.config.CONFIG;
@@ -29,10 +28,13 @@ import org.eclipse.scout.rt.shared.TEXTS;
 import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.RestUrlGatewaysProperty;
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.RestUrlNodesProperty;
+import org.thethingsnetwork.zrh.monitor.client.ui.MessageTablePage.Table.AccNoiseLevelColumn;
 import org.thethingsnetwork.zrh.monitor.client.ui.MessageTablePage.Table.CompleteTextColumn;
 import org.thethingsnetwork.zrh.monitor.client.ui.MessageTablePage.Table.DataColumn;
 import org.thethingsnetwork.zrh.monitor.client.ui.MessageTablePage.Table.GatewayEuiColumn;
+import org.thethingsnetwork.zrh.monitor.client.ui.MessageTablePage.Table.MaxNoiseLevelColumn;
 import org.thethingsnetwork.zrh.monitor.client.ui.MessageTablePage.Table.NodeEuiColumn;
+import org.thethingsnetwork.zrh.monitor.client.ui.MessageTablePage.Table.PlainDataColumn;
 import org.thethingsnetwork.zrh.monitor.client.ui.MessageTablePage.Table.TimestampColumn;
 import org.thethingsnetwork.zrh.monitor.client.ui.MessageTablePage.Table.TypeColumn;
 import org.thethingsnetwork.zrh.monitor.model.Message;
@@ -100,8 +102,11 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 		TypeColumn typeCol = table.getTypeColumn();
 		GatewayEuiColumn gwyEuiCol = table.getGatewayEuiColumn();		
 		NodeEuiColumn ndeEuiCol = table.getNodeEuiColumn();
+		PlainDataColumn plainCol = table.getPlainDataColumn();
 		DataColumn dataCol = table.getDataColumn();
 		CompleteTextColumn textCol = table.getCompleteTextColumn();
+		MaxNoiseLevelColumn maxNoiseCol = table.getMaxNoiseLevelColumn();
+		AccNoiseLevelColumn accNoiseCol = table.getAccNoiseLevelColumn();
 
 		List<Message> messages = new ArrayList<>();
 		List<ITableRow> rows = new ArrayList<>();
@@ -122,13 +127,24 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 		// fill messages into table rows
 		for(Message m : messages) {
 			TableRow r = new TableRow(table.getColumnSet());
+			String text = m.getCompleteMessage();
+			String data = m.getData();
+			String plainData = m.getPlainData();
 
 			r.getCellForUpdate(timeCol).setValue(m.getTimestamp());
 			r.getCellForUpdate(typeCol).setValue(m.isNodeMessage() ? TEXTS.get("TtnMessagePacket") : TEXTS.get("TtnMessageStatus"));
 			r.getCellForUpdate(ndeEuiCol).setValue(m.getNodeEui());
 			r.getCellForUpdate(gwyEuiCol).setValue(m.getGatewayEui());
-			r.getCellForUpdate(dataCol).setValue(m.getData());
-			r.getCellForUpdate(textCol).setValue(m.getCompleteMessage());
+			r.getCellForUpdate(plainCol).setValue(plainData);
+			r.getCellForUpdate(dataCol).setValue(data);
+			r.getCellForUpdate(textCol).setValue(text);
+			
+			if(m.isNoiseMessage()) {
+				Integer maxNoise = m.getMaxNoise();
+				Integer accNoise = m.getAccNoise();
+				r.getCellForUpdate(maxNoiseCol).setValue(maxNoise);
+				r.getCellForUpdate(accNoiseCol).setValue(accNoise);				
+			}
 
 			rows.add(r);
 		}
@@ -139,6 +155,23 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 		return;
 
 	}
+
+	/*
+	private String toPlainText(String encodedText) {
+		if(encodedText == null) {
+			return null;
+		}
+		
+		byte [] data = Base64.getDecoder().decode(encodedText);
+		StringBuffer plain = new StringBuffer();
+
+		for(int i = 0; i < data.length; i++) {
+			plain.append((char)data[i]);
+		}
+
+		return plain.toString();
+	}
+	*/
 
 	public void setGatewayEui(String eui) {
 		m_gatewayEui = eui;
@@ -175,6 +208,9 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 			return getColumnSet().getColumnByClass(DataColumn.class);
 		}
 
+		public PlainDataColumn getPlainDataColumn() {
+			return getColumnSet().getColumnByClass(PlainDataColumn.class);
+		}
 
 		public MaxNoiseLevelColumn getMaxNoiseLevelColumn() {
 			return getColumnSet().getColumnByClass(MaxNoiseLevelColumn.class);
@@ -214,7 +250,7 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 			}
 		}
 
-		@Order(1500.0)
+		@Order(2000.0)
 		public class TypeColumn extends AbstractStringColumn {
 			@Override
 			protected String getConfiguredHeaderText() {
@@ -227,7 +263,7 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 			}
 		}
 
-		@Order(2000.0)
+		@Order(3000.0)
 		public class NodeEuiColumn extends AbstractStringColumn {
 			@Override
 			protected String getConfiguredHeaderText() {
@@ -240,24 +276,11 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 			}
 		}
 
-		@Order(3000.0)
+		@Order(4000.0)
 		public class GatewayEuiColumn extends AbstractStringColumn {
 			@Override
 			protected String getConfiguredHeaderText() {
 				return TEXTS.get("GatewayEui");
-			}
-
-			@Override
-			protected int getConfiguredWidth() {
-				return 100;
-			}
-		}
-
-		@Order(4000.0)
-		public class DataColumn extends AbstractStringColumn {
-			@Override
-			protected String getConfiguredHeaderText() {
-				return TEXTS.get("Data");
 			}
 
 			@Override
@@ -291,8 +314,34 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 				return false;
 			}
 		}
-
+		
 		@Order(7000.0)
+		public class DataColumn extends AbstractStringColumn {
+			@Override
+			protected String getConfiguredHeaderText() {
+				return TEXTS.get("Data");
+			}
+
+			@Override
+			protected int getConfiguredWidth() {
+				return 100;
+			}
+		}
+
+		@Order(8000.0)
+		public class PlainDataColumn extends AbstractStringColumn {
+			@Override
+			protected String getConfiguredHeaderText() {
+				return TEXTS.get("PlainData");
+			}
+
+			@Override
+			protected int getConfiguredWidth() {
+				return 100;
+			}
+		}
+
+		@Order(9000.0)
 		public class CompleteTextColumn extends AbstractStringColumn {
 			@Override
 			protected String getConfiguredHeaderText() {
@@ -325,11 +374,30 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 
 			@Override
 			protected void execAction() {
-				String messageText = getTable().getCompleteTextColumn().getSelectedValue();
+				Table table = getTable();
+				String messageText = table.getCompleteTextColumn().getSelectedValue();
 				messageText = messageText.replaceAll("\\{", "{\n");
 				messageText = messageText.replaceAll("\\,", ",\n");
 				messageText = messageText.replaceAll("\\}", "\n}");
-				MessageBoxes.createOk().withHeader(TEXTS.get("CompleteMessageText")).withBody(messageText).show();
+
+				MessageForm form = new MessageForm();
+				form.getGatewayEuiField().setValue(table.getGatewayEuiColumn().getSelectedValue());
+				form.getTimestampField().setValue(table.getTimestampColumn().getSelectedValue());
+				form.getCompleteTextField().setValue(messageText);
+
+				if(table.getTypeColumn().getSelectedValue().equals("Status")) {
+					form.getMaxNoiseField().setVisible(false);
+					form.getAccNoiseField().setVisible(false);
+					form.getDataField().setVisible(false);
+				}
+				else {
+					form.getMaxNoiseField().setValue(table.getMaxNoiseLevelColumn().getSelectedValue());
+					form.getAccNoiseField().setValue(table.getAccNoiseLevelColumn().getSelectedValue());					
+					form.getDataField().setValue(table.getDataColumn().getSelectedValue());
+					form.getPlainDataField().setValue(table.getPlainDataColumn().getSelectedValue());
+				}
+
+				form.start();
 			}
 
 			@Override

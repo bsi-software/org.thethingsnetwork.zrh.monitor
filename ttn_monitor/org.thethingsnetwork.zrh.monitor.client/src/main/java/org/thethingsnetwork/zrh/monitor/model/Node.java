@@ -4,6 +4,10 @@ public class Node extends Device {
 	
 	private boolean m_noiseNode;
 	
+	public Node(String eui, int messageQueueSize) {
+		super(eui, messageQueueSize);
+	}
+	
 	public Node(Message message, int messageQueueSize) {
 		super(message, messageQueueSize);
 	}

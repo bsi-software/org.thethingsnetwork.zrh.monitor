@@ -21,6 +21,7 @@ public class TheThingsNetworkOutline extends AbstractOutline {
 		super.execCreateChildPages(pageList);
 
 		pageList.add(new HeatmapPage());
+		pageList.add(new NoisemapPage());
 
 		GatewayTablePage gatewayPage = new GatewayTablePage(TEXTS.get("MyGateways"));
 		gatewayPage.setFavoritesPage(true);

@@ -27,6 +27,8 @@ import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.MqttClientIdProp
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.MqttGatewaysTopicProperty;
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.MqttNodesTopicProperty;
 import org.thethingsnetwork.zrh.monitor.client.ui.HeatmapForm;
+import org.thethingsnetwork.zrh.monitor.client.ui.NoisemapForm;
+import org.thethingsnetwork.zrh.monitor.model.Message;
 import org.thethingsnetwork.zrh.monitor.model.TheThingsNetworkModel;
 
 @ApplicationScoped
@@ -130,8 +132,17 @@ public class TheThingsNetworkMqttClient implements MqttCallback {
 		LOG.debug(TEXTS.get("MqttMessage") + " topic:" + topic + " message:" + message);
 		
 		String messageData = new String(message.getPayload());
-		m_model.addMessage(messageData);
+		Message ttnMessage = m_model.addMessage(messageData);
 		
+		refreshGatewayMap();
+		
+	    if(ttnMessage.isNoiseMessage()) {
+	    	refreshNoiseMap();
+	    }
+		
+	}
+
+	private void refreshGatewayMap() {
 	    ModelJobs.schedule(new IRunnable() {
 
 	        @Override
@@ -139,8 +150,26 @@ public class TheThingsNetworkMqttClient implements MqttCallback {
 	          IDesktop desktop = ClientSessionProvider.currentSession().getDesktop();
 	          IForm form = desktop.getPageDetailForm();
 	          
-	          if(form instanceof HeatmapForm) {
+	          if(form instanceof HeatmapForm && !(form instanceof NoisemapForm)) {
 	        	((HeatmapForm)form).getLiveMapField().refresh();
+	          }
+	        }
+
+	      }, ModelJobs.newInput(m_clientRunContext
+	          .withRunMonitor(BEANS.get(RunMonitor.class))));
+	}
+
+	private void refreshNoiseMap() {
+    	// TODO code to refresh noise map
+	    ModelJobs.schedule(new IRunnable() {
+
+	        @Override
+	        public void run() throws Exception {
+	          IDesktop desktop = ClientSessionProvider.currentSession().getDesktop();
+	          IForm form = desktop.getPageDetailForm();
+	          
+	          if(form instanceof NoisemapForm) {
+	        	((NoisemapForm)form).getLiveMapField().refresh();
 	          }
 	        }
 

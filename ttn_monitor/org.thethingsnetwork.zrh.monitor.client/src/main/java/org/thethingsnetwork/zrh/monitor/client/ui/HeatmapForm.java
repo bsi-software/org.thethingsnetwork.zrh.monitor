@@ -97,25 +97,44 @@ public class HeatmapForm extends AbstractForm {
 		return getFieldByClass(ZoomLevelField.class);
 	}
 
+	/**
+	 * Compiles list of heat points to be added to the heat map field.
+	 */
+	protected List<HeatPoint> collectHeatPoints() {
+		TheThingsNetworkModel model = BEANS.get(TheThingsNetworkMqttClient.class).getModel();
+		List<HeatPoint> heatPoints = new ArrayList<>();
 
+		// fill ttn gateway model info into heat points
+		for(String eui: model.getGatewayEuis()) {
+			Gateway g = model.getGateway(eui);
+			HeatPoint hp = new HeatPoint(
+					BigDecimal.valueOf(g.getLocation().getLatitude()),
+					BigDecimal.valueOf(g.getLocation().getLongitude()),
+					INTENSITY_FLOOR + g.messages() * INTENSITY_MESSAGE 
+					);
+
+			heatPoints.add(hp);
+		}
+		
+		return heatPoints;
+	}
+	
+	/**
+	 * @return returns the initial view parameters for the heatmap field in this form.
+	 */
+	protected HeatmapViewParameter getInitialViewParametes() {
+		BigDecimal latitude = BigDecimal.valueOf(CONFIG.getPropertyValue(MapLatitudeProperty.class));
+		BigDecimal longitude = BigDecimal.valueOf(CONFIG.getPropertyValue(MapLongitudeProperty.class));
+		MapPoint center = new MapPoint(latitude, longitude);
+		int zoomFactor = CONFIG.getPropertyValue(MapZoomProperty.class);
+
+		return new HeatmapViewParameter(center, zoomFactor);		
+	}
+	
 	@Override
 	protected void execInitForm() {
 		updateViewParamFields();
 		getLiveMapField().addPropertyChangeListener(IHeatmapField.PROP_VIEW_PARAMETER, m_viewParameterListener);
-//		getLiveMapField().addHeatmapListener(new IHeatmapListener() {
-//
-//			@Override
-//			public void mapClicked(MapPoint point) {				
-//				// TODO add business logic when user clicks on map
-//				// BigDecimal latitude = point.getX();
-//				// BigDecimal longitude = point.getY();
-//			}
-//
-//			@Override
-//			public void heatPointsAdded(Collection<HeatPoint> points) {
-//			}
-//
-//		});
 	}
 
 	private void updateViewParamFields() {
@@ -195,32 +214,13 @@ public class HeatmapForm extends AbstractForm {
 				}
 				
 				private void resetHeatPoints() {
-					TheThingsNetworkModel model = BEANS.get(TheThingsNetworkMqttClient.class).getModel();
-					List<HeatPoint> heatPoints = new ArrayList<>();
-
-					// fill ttn gateway model info into heat points
-					for(String eui: model.getGatewayEuis()) {
-						Gateway g = model.getGateway(eui);
-						HeatPoint hp = new HeatPoint(
-								BigDecimal.valueOf(g.getLocation().getLatitude()),
-								BigDecimal.valueOf(g.getLocation().getLongitude()),
-								INTENSITY_FLOOR + g.messages() * INTENSITY_MESSAGE 
-								);
-
-						heatPoints.add(hp);
-					}
-
+					List<HeatPoint> heatPoints = collectHeatPoints();
 					setHeatPoints(heatPoints);
 				}
 
 				@Override
 				public HeatmapViewParameter getConfiguredViewParameter() {
-					BigDecimal latitude = BigDecimal.valueOf(CONFIG.getPropertyValue(MapLatitudeProperty.class));
-					BigDecimal longitude = BigDecimal.valueOf(CONFIG.getPropertyValue(MapLongitudeProperty.class));
-					MapPoint center = new MapPoint(latitude, longitude);
-					int zoomFactor = CONFIG.getPropertyValue(MapZoomProperty.class);
-
-					return new HeatmapViewParameter(center, zoomFactor);
+					return getInitialViewParametes();
 				}
 
 				public void reset() {
@@ -373,17 +373,7 @@ public class HeatmapForm extends AbstractForm {
 
 		@Order(2000.0)
 		public class CloseButton extends AbstractCloseButton {
-//			@Override
-//			protected String getConfiguredLabel() {
-//				return TEXTS.get("Close");
-//			}
-
-//			@Override
-//			protected void execClickAction() {
-//			}
 		}
-		
-		
 	}
 
 	public class PageFormHandler extends AbstractFormHandler {

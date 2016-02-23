@@ -12,6 +12,11 @@ public class Device {
 
 	private ArrayBlockingQueue<Message> m_messages = null;
 
+	public Device(String eui, int messageQueueSize) {
+		m_eui = eui;
+		m_messages = new ArrayBlockingQueue<Message>(messageQueueSize);
+	}
+	
 	public Device(Message message, int messageQueueSize) {
 		if(message != null) {
 			m_eui = message.getEui();

@@ -8,11 +8,11 @@ import org.eclipse.scout.rt.client.ui.form.fields.booleanfield.AbstractBooleanFi
 import org.eclipse.scout.rt.client.ui.form.fields.button.AbstractCancelButton;
 import org.eclipse.scout.rt.client.ui.form.fields.button.AbstractOkButton;
 import org.eclipse.scout.rt.client.ui.form.fields.groupbox.AbstractGroupBox;
-import org.eclipse.scout.rt.client.ui.form.fields.placeholder.AbstractPlaceholderField;
 import org.eclipse.scout.rt.client.ui.form.fields.stringfield.AbstractStringField;
 import org.eclipse.scout.rt.platform.Order;
 import org.eclipse.scout.rt.shared.TEXTS;
 import org.thethingsnetwork.zrh.monitor.client.ui.DeviceForm.MainBox.TopBox;
+import org.thethingsnetwork.zrh.monitor.client.ui.DeviceForm.MainBox.TopBox.EuiField;
 import org.thethingsnetwork.zrh.monitor.client.ui.DeviceForm.MainBox.TopBox.LatitudeField;
 import org.thethingsnetwork.zrh.monitor.client.ui.DeviceForm.MainBox.TopBox.LongitudeField;
 import org.thethingsnetwork.zrh.monitor.client.ui.DeviceForm.MainBox.TopBox.NameField;
@@ -37,6 +37,10 @@ public class DeviceForm extends AbstractForm {
 		return getFieldByClass(NoiseField.class);
 	}
 
+	public EuiField getEuiField() {
+		return getFieldByClass(EuiField.class);
+	}
+
 	public NameField getNameField() {
 		return getFieldByClass(NameField.class);
 	}
@@ -50,6 +54,24 @@ public class DeviceForm extends AbstractForm {
 
 		@Order(1000.0)
 		public class TopBox extends AbstractGroupBox {
+
+			@Order(500.0)
+			public class EuiField extends AbstractStringField {
+				@Override
+				protected String getConfiguredLabel() {
+					return TEXTS.get("EuiOnly");
+				}
+
+				@Override
+				protected boolean getConfiguredEnabled() {
+					return false;
+				}
+				
+				@Override
+				protected int getConfiguredMaxLength() {
+					return 128;
+				}
+			}
 
 			@Order(1000.0)
 			public class NameField extends AbstractStringField {
@@ -72,10 +94,6 @@ public class DeviceForm extends AbstractForm {
 					return TEXTS.get("NoiseNode");
 				}
 			}
-			
-			@Order(2000.0)
-			public class EmptyField extends AbstractPlaceholderField {
-			}
 
 			@Order(3000.0)
 			public class LatitudeField extends AbstractBigDecimalField {	
@@ -92,6 +110,16 @@ public class DeviceForm extends AbstractForm {
 				@Override
 				protected BigDecimal getConfiguredMaxValue() {
 					return new BigDecimal("90.0");
+				}
+				
+				@Override
+				protected int getConfiguredFractionDigits() {
+					return 8;
+				}
+				
+				@Override
+				protected int getConfiguredMaxFractionDigits() {
+					return 8;
 				}
 			}
 
@@ -110,6 +138,16 @@ public class DeviceForm extends AbstractForm {
 				@Override
 				protected BigDecimal getConfiguredMaxValue() {
 					return new BigDecimal("180.0");
+				}
+				
+				@Override
+				protected int getConfiguredFractionDigits() {
+					return 8;
+				}
+				
+				@Override
+				protected int getConfiguredMaxFractionDigits() {
+					return 8;
 				}
 			}
 		}

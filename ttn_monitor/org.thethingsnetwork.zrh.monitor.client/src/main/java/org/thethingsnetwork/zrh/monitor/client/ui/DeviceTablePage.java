@@ -171,8 +171,7 @@ public class DeviceTablePage extends AbstractPageWithTable<DeviceTablePage.Table
 	@Override
 	protected IPage<MessageTablePage.Table> execCreateChildPage(ITableRow row) throws ProcessingException {
 		MessageTablePage messagePage = new MessageTablePage(null);
-		// TODO fix getMenu deprecation
-		messagePage.getTable().getMenu(OpenMessageRestMenu.class).setVisible(false);
+		messagePage.getTable().getMenuByClass(OpenMessageRestMenu.class).setVisible(false);
 
 		if(row != null) {
 			if(m_isNodePage) {
@@ -222,10 +221,10 @@ public class DeviceTablePage extends AbstractPageWithTable<DeviceTablePage.Table
 			protected void execAction() {
 				TheThingsNetworkModel model = BEANS.get(TheThingsNetworkMqttClient.class).getModel();				
 				ITableRow row = getTable().getSelectedRow();
-				DeviceForm form = new DeviceForm();
-
 				String eui = (String) row.getKeyValues().get(0);
+				
 				Device device = null;
+				DeviceForm form = new DeviceForm();
 
 				if(m_isNodePage) {
 					device = model.getNode(eui);
@@ -236,6 +235,7 @@ public class DeviceTablePage extends AbstractPageWithTable<DeviceTablePage.Table
 					form.getNoiseField().setVisible(false);
 				}
 
+				form.getEuiField().setValue(eui);
 				form.getNameField().setValue(device.getName());
 
 				if(device.hasLocation()) {

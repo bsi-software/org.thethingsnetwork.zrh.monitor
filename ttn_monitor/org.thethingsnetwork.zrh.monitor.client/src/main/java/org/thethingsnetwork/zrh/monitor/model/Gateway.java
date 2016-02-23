@@ -2,6 +2,10 @@ package org.thethingsnetwork.zrh.monitor.model;
 
 public class Gateway extends Device {
 
+	public Gateway(String eui, int messageQueueSize) {
+		super(eui, messageQueueSize);
+	}
+
 	public Gateway(Message message, int messageQueueSize) {
 		super(message, messageQueueSize);
 

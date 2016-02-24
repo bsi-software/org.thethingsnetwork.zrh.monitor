@@ -40,7 +40,7 @@
   <scm>
     <connection>scm:git:git://git.eclipse.org/gitroot/scout/maven-master.git/maven_plugin_config-master/maven_rt_plugin_config-master/org.thethingsnetwork.zrh.monitor.client</connection>
     <developerConnection>scm:git:ssh://${eclipse_gerrit_username}@git.eclipse.org:29418/scout/maven-master.git/maven_plugin_config-master/maven_rt_plugin_config-master/org.thethingsnetwork.zrh.monitor.client</developerConnection>
-    <tag>v2.0_1</tag>
+    <tag>v2.0.4</tag>
     <url>https://git.eclipse.org/c/scout/maven-master.git/maven_plugin_config-master/maven_rt_plugin_config-master/org.thethingsnetwork.zrh.monitor.client/</url>
   </scm>
   <issueManagement>

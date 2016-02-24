@@ -41,7 +41,7 @@
   <scm>
     <connection>scm:git:git://git.eclipse.org/gitroot/scout/maven-master.git/maven_plugin_config-master/maven_rt_plugin_config-master/org.thethingsnetwork.zrh.monitor</connection>
     <developerConnection>scm:git:ssh://${eclipse_gerrit_username}@git.eclipse.org:29418/scout/maven-master.git/maven_plugin_config-master/maven_rt_plugin_config-master/org.thethingsnetwork.zrh.monitor</developerConnection>
-    <tag>v2.0_1</tag>
+    <tag>v2.0.4</tag>
     <url>https://git.eclipse.org/c/scout/maven-master.git/maven_plugin_config-master/maven_rt_plugin_config-master/org.thethingsnetwork.zrh.monitor/</url>
   </scm>
   <issueManagement>
@@ -101,7 +101,6 @@
     <master_plugin_enforcer_version>1.4.1</master_plugin_enforcer_version>
     <master_plugin_javadoc_version>2.10.3</master_plugin_javadoc_version>
     <master_test_remoteDebugPort>8000</master_test_remoteDebugPort>
-    <eclipse-settings_masterVersion>2.0-SNAPSHOT</eclipse-settings_masterVersion>
     <master_plugin_git-commit-id_version>2.2.0</master_plugin_git-commit-id_version>
     <master_dependency_phantomjs_version>1.9.7</master_dependency_phantomjs_version>
     <master_plugin_flatten_version>1.0.0</master_plugin_flatten_version>
@@ -127,19 +126,22 @@
     <master_test_forkCount>0.5C</master_test_forkCount>
     <master_plugin_replacer_version>1.5.3</master_plugin_replacer_version>
     <master_plugin_war_version>2.6</master_plugin_war_version>
+    <master_plugin_jxr_version>2.5</master_plugin_jxr_version>
     <master_release_newVersion>${base.version}.I</master_release_newVersion>
     <master_unitTest_skip>false</master_unitTest_skip>
-    <master_plugin_surefire_version>2.19</master_plugin_surefire_version>
+    <master_plugin_surefire_version>2.18.1</master_plugin_surefire_version>
     <master_plugin_tomcat7_version>2.1</master_plugin_tomcat7_version>
     <master_plugin_eclipse-settings_version>3.0.1</master_plugin_eclipse-settings_version>
-    <master_plugin_failsafe_version>2.19</master_plugin_failsafe_version>
+    <master_plugin_failsafe_version>2.18.1</master_plugin_failsafe_version>
     <master_deployAtEnd>true</master_deployAtEnd>
+    <master_dependency_eclipseSettings_master_version>2.0.4</master_dependency_eclipseSettings_master_version>
     <master_flatten_mode>oss</master_flatten_mode>
-    <master_test_runOrder>failedfirst</master_test_runOrder>
+    <master_test_runOrder>hourly</master_test_runOrder>
+    <master_plugin_changelog_version>2.3</master_plugin_changelog_version>
     <master_git-id_failNoGit>false</master_git-id_failNoGit>
-    <master_plugin_scm_version>1.9.4</master_plugin_scm_version>
     <master_plugin_project-info-reports_version>2.8.1</master_plugin_project-info-reports_version>
-    <master_plugin_jandex_version>1.0.1</master_plugin_jandex_version>
+    <master_plugin_scm_version>1.9.4</master_plugin_scm_version>
+    <master_plugin_jandex_version>1.0.3</master_plugin_jandex_version>
     <master_plugin_ant_version>2.4</master_plugin_ant_version>
     <master_test_debugArgLine>-Xdebug
       -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</master_test_debugArgLine>
@@ -150,13 +152,14 @@
     <master_plugin_deploy_version>2.8.2</master_plugin_deploy_version>
     <master_plugin_clean_version>3.0.0</master_plugin_clean_version>
     <master_plugin_build-helper_version>1.9.1</master_plugin_build-helper_version>
+    <master_javadoc_opts></master_javadoc_opts>
     <master_coverage_jacoco_destFile>c:\Users\mzi\Desktop\oss\github\org.thethingsnetwork.zrh.monitor\ttn_monitor\org.thethingsnetwork.zrh.monitor/../target/jacoco-all.exec</master_coverage_jacoco_destFile>
     <master_plugin_tycho-extras_version>0.22.0</master_plugin_tycho-extras_version>
     <master_test_reuseVm>true</master_test_reuseVm>
     <master_plugin_cargo_version>1.4.15</master_plugin_cargo_version>
     <master_plugin_sortpom_version>2.4.0</master_plugin_sortpom_version>
     <master_plugin_phantomjs_version>0.7</master_plugin_phantomjs_version>
-    <master_test_timeout>30</master_test_timeout>
+    <master_test_timeout>300</master_test_timeout>
   </properties>
   <dependencyManagement>
     <dependencies>

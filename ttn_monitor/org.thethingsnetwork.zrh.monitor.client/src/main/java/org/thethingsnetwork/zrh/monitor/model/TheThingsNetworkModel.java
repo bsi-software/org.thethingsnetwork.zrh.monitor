@@ -193,9 +193,35 @@ public class TheThingsNetworkModel {
 		}
 	}
 
+	/**
+	 * removes all collected information of nodes and gateways.
+	 * favorite gateways and nodes keep the entered additional info.
+	 */
 	public void reset() {
-		m_gateway = new ConcurrentHashMap<String, Gateway>();
-		m_node = new ConcurrentHashMap<String, Node>();
+		if(m_gateway == null) {
+			m_gateway = new ConcurrentHashMap<String, Gateway>();
+			m_node = new ConcurrentHashMap<String, Node>();
+		}
+		else {
+			for(String eui: getGatewayEuis()) {
+				if(m_gatewayFavorite.contains(eui)) {
+					getGateway(eui).reset();
+				}
+				else {
+					m_gateway.remove(eui);
+				}
+			}
+			
+			for(String eui: getNodeEuis()) {
+				if(m_nodeFavorite.contains(eui)) {
+					getNode(eui).reset();
+				}
+				else {
+					m_node.remove(eui);
+				}
+			}
+		}	
+		
 	}
 
 

@@ -97,6 +97,26 @@ public class HeatmapForm extends AbstractForm {
 		return getFieldByClass(ZoomLevelField.class);
 	}
 
+	protected void handleMapClick(MapPoint point) {
+		TheThingsNetworkModel model = BEANS.get(TheThingsNetworkMqttClient.class).getModel();
+		Double latitude = point.getY().doubleValue();
+		Double longitude = point.getX().doubleValue();
+		
+		Gateway g = model.getGateway(new Location(latitude, longitude));
+		boolean isNode = false;
+		
+		if(g != null) {
+			int result = MessageBoxes.createYesNo()
+    		.withHeader(TEXTS.get("Gateway") + " " + g.getEui())
+    		.withBody(TEXTS.get("AddToMyGateways") + ": " + g.getLocation())
+    		.show();
+			
+			if(result == IMessageBox.YES_OPTION) {
+				model.addToFavorites(g.getEui(), isNode);
+			}
+		}
+	}
+	
 	/**
 	 * Compiles list of heat points to be added to the heat map field.
 	 */
@@ -193,24 +213,7 @@ public class HeatmapForm extends AbstractForm {
 				@Override
 				public void handleClick(MapPoint point) {
 					super.handleClick(point);
-					
-					TheThingsNetworkModel model = BEANS.get(TheThingsNetworkMqttClient.class).getModel();
-					Double latitude = point.getY().doubleValue();
-					Double longitude = point.getX().doubleValue();
-					
-					Gateway g = model.getGateway(new Location(latitude, longitude));
-					boolean isNode = false;
-					
-					if(g != null) {
-						int result = MessageBoxes.createYesNo()
-		        		.withHeader(TEXTS.get("Gateway") + " " + g.getEui())
-		        		.withBody(TEXTS.get("AddToMyGateways") + ": " + g.getLocation())
-		        		.show();
-						
-						if(result == IMessageBox.YES_OPTION) {
-							model.addToFavorites(g.getEui(), isNode);
-						}
-					}
+					handleMapClick(point);					
 				}
 				
 				private void resetHeatPoints() {

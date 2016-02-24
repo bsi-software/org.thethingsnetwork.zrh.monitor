@@ -9,12 +9,14 @@ public class Device {
 	private String m_eui = "<default-eui>";
 	private String m_name = null;
 	private Location m_location = null;
+	private int m_messageQueueSize = 1;
 
 	private ArrayBlockingQueue<Message> m_messages = null;
 
 	public Device(String eui, int messageQueueSize) {
 		m_eui = eui;
-		m_messages = new ArrayBlockingQueue<Message>(messageQueueSize);
+		m_messageQueueSize = messageQueueSize;
+		reset();
 	}
 	
 	public Device(Message message, int messageQueueSize) {
@@ -67,6 +69,14 @@ public class Device {
 		List<Message> list = new ArrayList<Message>();
 		list.addAll(m_messages);
 		return list;
+	}
+	
+	/**
+	 * drops all messages in the message queue.
+	 * @return 
+	 */
+	public void reset() {
+		m_messages = new ArrayBlockingQueue<Message>(m_messageQueueSize);
 	}
 
 	public String toString() {

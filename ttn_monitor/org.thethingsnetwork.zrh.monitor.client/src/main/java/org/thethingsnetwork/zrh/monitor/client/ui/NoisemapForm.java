@@ -12,6 +12,7 @@ import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.H
 import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.MapPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.thethingsnetwork.zrh.monitor.model.Location;
 import org.thethingsnetwork.zrh.monitor.model.Message;
 import org.thethingsnetwork.zrh.monitor.model.Node;
 import org.thethingsnetwork.zrh.monitor.model.TheThingsNetworkModel;
@@ -20,6 +21,8 @@ import org.thethingsnetwork.zrh.monitor.mqtt.TheThingsNetworkMqttClient;
 public class NoisemapForm extends HeatmapForm {
 	private static final Logger LOG = LoggerFactory.getLogger(HeatmapForm.class);
 
+	public static final String DEVICE_ID_TEMPLATE = "5A4801__";
+	
 	// zurich
 	// public static final double MAP_CENTER_LAT = 47.39;
 	// public static final double MAP_CENTER_LONG = 8.51;
@@ -28,7 +31,7 @@ public class NoisemapForm extends HeatmapForm {
 	// daettwil
 	public static final double MAP_CENTER_LAT = 47.45018;
 	public static final double MAP_CENTER_LONG = 8.29282;
-	public static final int MAP_ZOOM = 17;
+	public static final int MAP_ZOOM = 16;
 
 	protected HeatmapViewParameter getInitialViewParametes() {
 		BigDecimal latitude = BigDecimal.valueOf(MAP_CENTER_LAT);
@@ -38,6 +41,35 @@ public class NoisemapForm extends HeatmapForm {
 		return new HeatmapViewParameter(center, MAP_ZOOM);		
 	}
 
+	@Override
+	protected void handleMapClick(MapPoint point) {
+		TheThingsNetworkModel model = BEANS.get(TheThingsNetworkMqttClient.class).getModel();
+		double latitude = point.getX().doubleValue();
+		double longitude = point.getY().doubleValue();
+		
+		DeviceForm form = new DeviceForm();
+		form.getEuiField().setValue(DEVICE_ID_TEMPLATE);
+		form.getNoiseField().setValue(true);
+		form.getLatitudeField().setValue(new BigDecimal(latitude));
+		form.getLongitudeField().setValue(new BigDecimal(longitude));
+		form.getEuiField().setEnabled(true);
+		form.getNoiseField().setEnabled(false);
+		form.getLatitudeField().setEnabled(false);
+		form.getLongitudeField().setEnabled(false);
+		
+		form.start();
+		form.waitFor();
+		
+		if(form.isFormStored()) {
+			String eui = form.getEuiField().getValue();
+			Node node = model.getNode(eui);
+			
+			node.setName(form.getNameField().getValue());
+			node.setNoiseNode(true);
+			node.setLocation(new Location(latitude, longitude));
+		}
+	}
+	
 	@Override
 	protected List<HeatPoint> collectHeatPoints() {
 		TheThingsNetworkModel model = BEANS.get(TheThingsNetworkMqttClient.class).getModel();
@@ -75,7 +107,7 @@ public class NoisemapForm extends HeatmapForm {
 			HeatPoint hp = new HeatPoint(
 					latitude,
 					longitude,
-					(float) (1.0 + m.getMaxNoise() * 5.0)
+					(float) (1.0 + m.getMaxNoise() * 2.0)
 					);
 
 			heatPoints.add(hp);

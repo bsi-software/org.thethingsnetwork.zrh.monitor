@@ -23,14 +23,9 @@ public class NoisemapForm extends HeatmapForm {
 
 	public static final String DEVICE_ID_TEMPLATE = "5A4801__";
 	
-	// zurich
-	// public static final double MAP_CENTER_LAT = 47.39;
-	// public static final double MAP_CENTER_LONG = 8.51;
-	// public static final int MAP_ZOOM = 17;
-	
 	// daettwil
-	public static final double MAP_CENTER_LAT = 47.45018;
-	public static final double MAP_CENTER_LONG = 8.29282;
+	public static final double MAP_CENTER_LAT = 47.39156;
+	public static final double MAP_CENTER_LONG = 8.51105;
 	public static final int MAP_ZOOM = 16;
 
 	protected HeatmapViewParameter getInitialViewParametes() {

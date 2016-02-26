@@ -6,7 +6,7 @@ import org.eclipse.scout.rt.shared.TEXTS;
 public class NoisemapPage extends HeatmapPage {
 	@Override
 	protected String getConfiguredTitle() {
-		return TEXTS.get("NoiseMap");
+		return TEXTS.get("NoiseMapZurich");
 	}
 
 	@Override

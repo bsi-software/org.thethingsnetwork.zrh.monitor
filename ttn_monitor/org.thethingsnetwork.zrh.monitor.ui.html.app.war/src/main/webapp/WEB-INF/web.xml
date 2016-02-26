@@ -7,9 +7,8 @@
 
   <display-name>TheThingsNetwork Monitor HTML UI</display-name>
 
-  <!-- Platform Startup listener -->
   <listener>
-    <listener-class>org.eclipse.scout.rt.server.commons.WebappEventListener</listener-class>
+    <listener-class>org.eclipse.scout.rt.ui.html.UiHttpSessionListener</listener-class>
   </listener>
 
   <filter>

@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.server.commons.authentication.AnonymousAccessController;
+import org.eclipse.scout.rt.server.commons.authentication.AnonymousAccessController.AnonymousAuthConfig;
 
 /**
  * <h3>{@link UiServletFilter}</h3>
@@ -22,15 +23,17 @@ import org.eclipse.scout.rt.server.commons.authentication.AnonymousAccessControl
  */
 public class UiServletFilter implements Filter {
 
-  private final AnonymousAccessController m_anonymousAccessController = BEANS.get(AnonymousAccessController.class);
+  private AnonymousAccessController m_anonymousAccessController; 
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
-	  m_anonymousAccessController.init();
+	  m_anonymousAccessController = BEANS.get(AnonymousAccessController.class).init(new AnonymousAuthConfig());
   }
 
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) 
+		  throws IOException, ServletException 
+  {
     final HttpServletRequest req = (HttpServletRequest) request;
     final HttpServletResponse resp = (HttpServletResponse) response;
     m_anonymousAccessController.handle(req, resp, chain);

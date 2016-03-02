@@ -56,9 +56,9 @@ public class Device {
 			if(m_messages.remainingCapacity() == 0) {
 				m_messages.remove();
 			}
+			
+			m_messages.add(m);
 		}
-
-		m_messages.add(m);
 	}
 
 	public int messages() {

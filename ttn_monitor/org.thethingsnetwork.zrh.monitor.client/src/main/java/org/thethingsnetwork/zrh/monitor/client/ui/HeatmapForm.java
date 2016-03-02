@@ -4,6 +4,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.eclipse.scout.rt.client.ui.action.menu.AbstractMenu;
@@ -11,6 +12,7 @@ import org.eclipse.scout.rt.client.ui.form.AbstractForm;
 import org.eclipse.scout.rt.client.ui.form.AbstractFormHandler;
 import org.eclipse.scout.rt.client.ui.form.fields.bigdecimalfield.AbstractBigDecimalField;
 import org.eclipse.scout.rt.client.ui.form.fields.button.AbstractCloseButton;
+import org.eclipse.scout.rt.client.ui.form.fields.datefield.AbstractDateTimeField;
 import org.eclipse.scout.rt.client.ui.form.fields.groupbox.AbstractGroupBox;
 import org.eclipse.scout.rt.client.ui.form.fields.integerfield.AbstractIntegerField;
 import org.eclipse.scout.rt.client.ui.form.fields.sequencebox.AbstractSequenceBox;
@@ -34,6 +36,7 @@ import org.thethingsnetwork.zrh.monitor.client.ui.HeatmapForm.MainBox.TopBox.Liv
 import org.thethingsnetwork.zrh.monitor.client.ui.HeatmapForm.MainBox.TopBox.ViewParamterBox;
 import org.thethingsnetwork.zrh.monitor.client.ui.HeatmapForm.MainBox.TopBox.ViewParamterBox.CenterXField;
 import org.thethingsnetwork.zrh.monitor.client.ui.HeatmapForm.MainBox.TopBox.ViewParamterBox.CenterYField;
+import org.thethingsnetwork.zrh.monitor.client.ui.HeatmapForm.MainBox.TopBox.ViewParamterBox.TimeField;
 import org.thethingsnetwork.zrh.monitor.client.ui.HeatmapForm.MainBox.TopBox.ViewParamterBox.ZoomLevelField;
 import org.thethingsnetwork.zrh.monitor.model.Gateway;
 import org.thethingsnetwork.zrh.monitor.model.Location;
@@ -77,6 +80,10 @@ public class HeatmapForm extends AbstractForm {
 		return getFieldByClass(CloseButton.class);
 	}
 
+	public TimeField getTimeField() {
+		return getFieldByClass(TimeField.class);
+	}
+
 	public TopBox getTopBox() {
 		return getFieldByClass(TopBox.class);
 	}
@@ -118,6 +125,18 @@ public class HeatmapForm extends AbstractForm {
 	}
 	
 	/**
+	 * @return returns the initial view parameters for the heatmap field in this form.
+	 */
+	protected HeatmapViewParameter getInitialViewParametes() {
+		BigDecimal latitude = BigDecimal.valueOf(CONFIG.getPropertyValue(MapLatitudeProperty.class));
+		BigDecimal longitude = BigDecimal.valueOf(CONFIG.getPropertyValue(MapLongitudeProperty.class));
+		MapPoint center = new MapPoint(latitude, longitude);
+		int zoomFactor = CONFIG.getPropertyValue(MapZoomProperty.class);
+
+		return new HeatmapViewParameter(center, zoomFactor);		
+	}
+	
+	/**
 	 * Compiles list of heat points to be added to the heat map field.
 	 */
 	protected List<HeatPoint> collectHeatPoints() {
@@ -140,21 +159,25 @@ public class HeatmapForm extends AbstractForm {
 	}
 	
 	/**
-	 * @return returns the initial view parameters for the heatmap field in this form.
+	 * Refresh the live map field and set the time field to the current time.
 	 */
-	protected HeatmapViewParameter getInitialViewParametes() {
-		BigDecimal latitude = BigDecimal.valueOf(CONFIG.getPropertyValue(MapLatitudeProperty.class));
-		BigDecimal longitude = BigDecimal.valueOf(CONFIG.getPropertyValue(MapLongitudeProperty.class));
-		MapPoint center = new MapPoint(latitude, longitude);
-		int zoomFactor = CONFIG.getPropertyValue(MapZoomProperty.class);
-
-		return new HeatmapViewParameter(center, zoomFactor);		
+	public void refreshMap() {
+		getTimeField().setValue(new Date());
+		getLiveMapField().refresh();
+	}
+	
+	/**
+	 * Reacts on updates of the time field
+	 */
+	protected void timeValueChanged(Date time) {
+		// NOP
 	}
 	
 	@Override
 	protected void execInitForm() {
 		updateViewParamFields();
 		getLiveMapField().addPropertyChangeListener(IHeatmapField.PROP_VIEW_PARAMETER, m_viewParameterListener);
+		getTimeField().setEnabled(false);
 	}
 
 	private void updateViewParamFields() {
@@ -228,10 +251,11 @@ public class HeatmapForm extends AbstractForm {
 
 				public void reset() {
 					setViewParameter(getConfiguredViewParameter());
+					getTimeField().setValue(new Date());
 				}
 
 				public void refresh() {
-					resetHeatPoints();					
+					resetHeatPoints();			
 				}
 
 			}
@@ -353,6 +377,21 @@ public class HeatmapForm extends AbstractForm {
 						}
 					}
 				}
+
+				@Order(4000.0)
+				public class TimeField extends AbstractDateTimeField {
+					@Override
+					protected String getConfiguredLabel() {
+						return TEXTS.get("Time");
+					}
+					
+					@Override
+					protected void execChangedValue() {
+						timeValueChanged(getValue());
+					}
+				}
+				
+				
 			}
 		}
 

@@ -2,6 +2,7 @@ package org.thethingsnetwork.zrh.monitor.client.ui;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class NoisemapForm extends HeatmapForm {
 
 	public static final String DEVICE_ID_TEMPLATE = "5A4801__";
 	
-	// daettwil
+	// zurich foerrlibuckstrasse
 	public static final double MAP_CENTER_LAT = 47.39156;
 	public static final double MAP_CENTER_LONG = 8.51105;
 	public static final int MAP_ZOOM = 17;
@@ -66,11 +67,35 @@ public class NoisemapForm extends HeatmapForm {
 	}
 	
 	@Override
+	public void refreshMap() {
+		Date timeNow = new Date();
+		Date timeField = getTimeField().getValue();
+		
+		// if time is missing: set to current time
+		if(timeField == null) {
+			getTimeField().setValue(timeNow);
+		}
+		// if time is almost now (max 60 secs ago), set to current time
+		else if(Math.abs(timeNow.getTime() - timeField.getTime()) <= 60000) {
+			getTimeField().setValue(timeNow);
+		}
+		
+		getLiveMapField().refresh();
+	}
+	
+	@Override
 	protected List<HeatPoint> collectHeatPoints() {
 		TheThingsNetworkModel model = BEANS.get(TheThingsNetworkMqttClient.class).getModel();
 
 		// extract latest message per node
 		Map<String, Message> noiseMessages = new HashMap<>();
+		Date time = getTimeField().getValue();
+		long targetTime = System.currentTimeMillis();
+		
+		if(time != null) {
+			targetTime = time.getTime();
+		}
+		
 		for(Message m : model.getNoiseMessages()) {
 			String eui = m.getNodeEui();
 
@@ -79,8 +104,10 @@ public class NoisemapForm extends HeatmapForm {
 			}
 			else {
 				Message mOld = noiseMessages.get(eui);
+				long diffOld = Math.abs(mOld.getTimestamp().getTime() - targetTime);
+				long diffNew = Math.abs(m.getTimestamp().getTime() - targetTime);
 
-				if(m.getTimestamp().compareTo(mOld.getTimestamp()) > 0) {
+				if(diffNew < diffOld) {
 					noiseMessages.put(eui, m);
 				}
 			}
@@ -102,7 +129,7 @@ public class NoisemapForm extends HeatmapForm {
 			HeatPoint hp = new HeatPoint(latitude, longitude, noise2heat(noise));
 			heatPoints.add(hp);
 			
-			LOG.info("added heat point: " + hp + " max noise=" + m.getMaxNoise() + " len(list)=" + heatPoints.size());
+			LOG.info("added heat point: " + hp + " max noise=" + m.getMaxNoise() + " time=" + m.getTimestamp() + " len(list)=" + heatPoints.size());
 
 		}
 		
@@ -159,6 +186,13 @@ public class NoisemapForm extends HeatmapForm {
 		getLiveMapField().refresh();
 
 		super.execInitForm();
+		getTimeField().setEnabled(true);
+		getTimeField().setValue(new Date());
+	}
+	
+	@Override
+	protected void timeValueChanged(Date time) {
+		getLiveMapField().refresh();
 	}
 
 	@Override

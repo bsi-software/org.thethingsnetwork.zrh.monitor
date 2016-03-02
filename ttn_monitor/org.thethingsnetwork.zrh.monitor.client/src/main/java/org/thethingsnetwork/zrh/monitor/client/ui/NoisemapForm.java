@@ -26,7 +26,7 @@ public class NoisemapForm extends HeatmapForm {
 	// daettwil
 	public static final double MAP_CENTER_LAT = 47.39156;
 	public static final double MAP_CENTER_LONG = 8.51105;
-	public static final int MAP_ZOOM = 16;
+	public static final int MAP_ZOOM = 17;
 
 	protected HeatmapViewParameter getInitialViewParametes() {
 		BigDecimal latitude = BigDecimal.valueOf(MAP_CENTER_LAT);
@@ -98,19 +98,57 @@ public class NoisemapForm extends HeatmapForm {
 			
 			BigDecimal latitude = BigDecimal.valueOf(node.getLocation().getLatitude());
 			BigDecimal longitude = BigDecimal.valueOf(node.getLocation().getLongitude());
-
-			HeatPoint hp = new HeatPoint(
-					latitude,
-					longitude,
-					(float) (1.0 + m.getMaxNoise() * 2.0)
-					);
-
+			float noise = m.getMaxNoise();
+			HeatPoint hp = new HeatPoint(latitude, longitude, noise2heat(noise));
 			heatPoints.add(hp);
 			
 			LOG.info("added heat point: " + hp + " max noise=" + m.getMaxNoise() + " len(list)=" + heatPoints.size());
 
 		}
+		
+		// uncomment to add samples to help calibrate noise 2 heat value conversion
+		// heatPoints = addSampleNoiseHeatPoints(heatPoints);
 
+		return heatPoints;
+	}
+
+	/**
+	 * Fine tune noise value to heat value for display on map.
+	 * @param noise
+	 * @return heat value to represent noise level
+	 */
+	private float noise2heat(float noise) {
+		if(noise < 2.0) {
+			return (float) (2.0);
+		}
+		if(noise <= 10.0) {
+			return (float) (6.0 * noise / 10.0);
+		}
+		if(noise <= 15.0) {
+			return (float) (10.0 * noise / 15.0);
+		}
+		
+		return (float) (12.0 * noise / 18.0);
+	}
+
+	/**
+	 * Add virtual noise samples for calibration of display heat values.
+	 * Only for development, not needed for production.
+	 * @param noise
+	 * @return heat value to represent noise level
+	 */
+	private List<HeatPoint> addSampleNoiseHeatPoints(List<HeatPoint> heatPoints) {
+		double lat = MAP_CENTER_LAT;
+		double lng = MAP_CENTER_LONG;
+		float [] noise = new float[] {0.0f, 2.0f, 4.0f, 6.0f, 8.0f, 10.0f, 12.0f, 14.0f, 16.0f, 18.0f, 20.0f};
+		
+		for(int i = 0; i < noise.length; i++) {
+			HeatPoint hp = new HeatPoint(new BigDecimal(lat), new BigDecimal(lng), noise2heat(noise[i]));
+			heatPoints.add(hp);
+			
+			lng += 0.0005;
+		}
+		
 		return heatPoints;
 	}
 
@@ -123,6 +161,11 @@ public class NoisemapForm extends HeatmapForm {
 		super.execInitForm();
 	}
 
+	@Override
+	protected void execFormActivated() {
+		getLiveMapField().refresh();
+	}
+	
 	private void setViewParameter() {
 		BigDecimal centerLat = new BigDecimal(MAP_CENTER_LAT);
 		BigDecimal centerLong = new BigDecimal(MAP_CENTER_LONG);

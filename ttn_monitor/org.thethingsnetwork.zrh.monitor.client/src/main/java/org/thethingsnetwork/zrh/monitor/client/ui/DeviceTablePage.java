@@ -471,6 +471,17 @@ public class DeviceTablePage extends AbstractPageWithTable<DeviceTablePage.Table
 			protected int getConfiguredWidth() {
 				return 100;
 			}
+			
+			@Override
+			protected int getConfiguredFractionDigits() {
+				return 4;
+			}
+			
+			@Override
+			protected int getConfiguredMaxFractionDigits() {
+				return 4;
+			}
+			
 		}
 
 		@Order(3000.0)
@@ -483,6 +494,16 @@ public class DeviceTablePage extends AbstractPageWithTable<DeviceTablePage.Table
 			@Override
 			protected int getConfiguredWidth() {
 				return 100;
+			}
+			
+			@Override
+			protected int getConfiguredFractionDigits() {
+				return 4;
+			}
+			
+			@Override
+			protected int getConfiguredMaxFractionDigits() {
+				return 4;
 			}
 		}
 

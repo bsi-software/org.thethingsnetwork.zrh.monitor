@@ -22,11 +22,11 @@ import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.Order;
 import org.eclipse.scout.rt.platform.config.CONFIG;
 import org.eclipse.scout.rt.shared.TEXTS;
-import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.AbstractHeatmapField;
-import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.HeatPoint;
-import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.HeatmapViewParameter;
-import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.IHeatmapField;
-import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.MapPoint;
+import org.eclipse.scout.widgets.heatmap.client.ui.form.fields.heatmapfield.AbstractHeatmapField;
+import org.eclipse.scout.widgets.heatmap.client.ui.form.fields.heatmapfield.HeatPoint;
+import org.eclipse.scout.widgets.heatmap.client.ui.form.fields.heatmapfield.HeatmapViewParameter;
+import org.eclipse.scout.widgets.heatmap.client.ui.form.fields.heatmapfield.IHeatmapField;
+import org.eclipse.scout.widgets.heatmap.client.ui.form.fields.heatmapfield.MapPoint;
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.MapLatitudeProperty;
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.MapLongitudeProperty;
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.MapZoomProperty;
@@ -146,6 +146,12 @@ public class HeatmapForm extends AbstractForm {
 		// fill ttn gateway model info into heat points
 		for(String eui: model.getGatewayEuis()) {
 			Gateway g = model.getGateway(eui);
+			Location l = g.getLocation();
+			
+			if(l == null) {
+				continue;
+			}
+			
 			HeatPoint hp = new HeatPoint(
 					BigDecimal.valueOf(g.getLocation().getLatitude()),
 					BigDecimal.valueOf(g.getLocation().getLongitude()),

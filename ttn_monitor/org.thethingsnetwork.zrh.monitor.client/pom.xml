@@ -23,8 +23,8 @@
 		</dependency>
 		<!-- heatmap field -->
 		<dependency>
-			<groupId>org.eclipsescout.demo.widgets</groupId>
-			<artifactId>org.eclipsescout.demo.widgets.client.custom</artifactId>
+			<groupId>org.eclipse.scout.widgets</groupId>
+			<artifactId>org.eclipse.scout.widgets.heatmap.client</artifactId>
 		</dependency>
 		<!-- eclipse paho -->
 		<dependency>

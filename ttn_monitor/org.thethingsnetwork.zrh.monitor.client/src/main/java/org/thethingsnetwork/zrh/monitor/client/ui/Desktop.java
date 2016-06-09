@@ -24,22 +24,6 @@ import org.thethingsnetwork.zrh.monitor.mqtt.TheThingsNetworkMqttClient;
  */
 public class Desktop extends AbstractDesktop {
 
-	private final DesktopStyle m_desktopStyle;
-
-	public Desktop(DesktopStyle desktopStyle) {
-		super(false);
-		if (desktopStyle == null) {
-			throw new IllegalArgumentException("desktopStyle cannot be null");
-		}
-		m_desktopStyle = desktopStyle;
-		callInitializer();
-	}
-
-	@Override
-	protected DesktopStyle getConfiguredDesktopStyle() {
-		return m_desktopStyle;
-	}
-
 	@Override
 	protected String getConfiguredTitle() {
 		return TEXTS.get("ApplicationTitle");

@@ -5,8 +5,6 @@ import java.util.Locale;
 import org.eclipse.scout.rt.client.AbstractClientSession;
 import org.eclipse.scout.rt.client.IClientSession;
 import org.eclipse.scout.rt.client.session.ClientSessionProvider;
-import org.eclipse.scout.rt.client.ui.desktop.IDesktop.DesktopStyle;
-import org.eclipse.scout.rt.platform.context.PropertyMap;
 import org.eclipse.scout.rt.shared.services.common.code.CODES;
 import org.thethingsnetwork.zrh.monitor.client.ui.Desktop;
 
@@ -32,21 +30,7 @@ public class ClientSession extends AbstractClientSession {
 	protected void execLoadSession() {
 		execInitLocale();
 		CODES.getAllCodeTypes("org.eclipsescout.demo.widgets.shared");
-		setDesktop(new Desktop(resolveDesktopStyle()));
-	}
-
-	/**
-	 * Returns the 'desktopStyle' provided as part of the URL, or the default style otherwise.<br/>
-	 * E.g. http://[host:port]/?desktopStyle=BENCH to start in bench mode.
-	 */
-	protected DesktopStyle resolveDesktopStyle() {
-		String desktopStyle = PropertyMap.CURRENT.get().get("desktopStyle");
-		if (desktopStyle != null) {
-			return DesktopStyle.valueOf(desktopStyle);
-		}
-		else {
-			return DesktopStyle.DEFAULT;
-		}
+		setDesktop(new Desktop());
 	}
 
 	/**

@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.scout.rt.platform.BEANS;
-import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.HeatPoint;
-import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.HeatmapViewParameter;
-import org.eclipsescout.demo.widgets.client.custom.ui.form.fields.heatmapfield.MapPoint;
+import org.eclipse.scout.widgets.heatmap.client.ui.form.fields.heatmapfield.HeatPoint;
+import org.eclipse.scout.widgets.heatmap.client.ui.form.fields.heatmapfield.HeatmapViewParameter;
+import org.eclipse.scout.widgets.heatmap.client.ui.form.fields.heatmapfield.MapPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thethingsnetwork.zrh.monitor.model.Location;

@@ -21,6 +21,10 @@
 			<artifactId>org.eclipse.scout.rt.ui.html</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.eclipse.scout.widgets</groupId>
+			<artifactId>org.eclipse.scout.widgets.heatmap.ui.html</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.thethingsnetwork.zrh.monitor</groupId>
 			<artifactId>org.thethingsnetwork.zrh.monitor.client</artifactId>
 		</dependency>

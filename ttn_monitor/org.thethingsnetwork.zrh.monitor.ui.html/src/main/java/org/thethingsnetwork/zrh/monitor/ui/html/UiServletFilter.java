@@ -12,8 +12,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.scout.rt.platform.BEANS;
-import org.eclipse.scout.rt.server.commons.authentication.AnonymousAccessController;
-import org.eclipse.scout.rt.server.commons.authentication.AnonymousAccessController.AnonymousAuthConfig;
+import org.eclipse.scout.rt.platform.security.ConfigFileCredentialVerifier;
+import org.eclipse.scout.rt.server.commons.authentication.DevelopmentAccessController;
+import org.eclipse.scout.rt.server.commons.authentication.FormBasedAccessController;
+import org.eclipse.scout.rt.server.commons.authentication.FormBasedAccessController.FormBasedAuthConfig;
+import org.eclipse.scout.rt.server.commons.authentication.ServletFilterHelper;
+import org.eclipse.scout.rt.server.commons.authentication.TrivialAccessController;
+import org.eclipse.scout.rt.server.commons.authentication.TrivialAccessController.TrivialAuthConfig;
 
 /**
  * <h3>{@link UiServletFilter}</h3>
@@ -22,25 +27,69 @@ import org.eclipse.scout.rt.server.commons.authentication.AnonymousAccessControl
  * @author mzi
  */
 public class UiServletFilter implements Filter {
+	//
+	//  private AnonymousAccessController m_anonymousAccessController; 
+	//
+	//  @Override
+	//  public void init(FilterConfig filterConfig) throws ServletException {
+	//	  m_anonymousAccessController = BEANS.get(AnonymousAccessController.class).init(new AnonymousAuthConfig());
+	//  }
+	//
+	//  @Override
+	//  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) 
+	//		  throws IOException, ServletException 
+	//  {
+	//    final HttpServletRequest req = (HttpServletRequest) request;
+	//    final HttpServletResponse resp = (HttpServletResponse) response;
+	//    m_anonymousAccessController.handle(req, resp, chain);
+	//  }
+	//
+	//  @Override
+	//  public void destroy() {
+	//	  m_anonymousAccessController.destroy();
+	//  }
 
-  private AnonymousAccessController m_anonymousAccessController; 
+	private TrivialAccessController m_trivialAccessController;
+	private FormBasedAccessController m_formBasedAccessController;
+	private DevelopmentAccessController m_developmentAccessController;
 
-  @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
-	  m_anonymousAccessController = BEANS.get(AnonymousAccessController.class).init(new AnonymousAuthConfig());
-  }
+	@Override
+	public void init(FilterConfig filterConfig) throws ServletException {
+		m_trivialAccessController = BEANS.get(TrivialAccessController.class)
+				.init(new TrivialAuthConfig()
+						.withExclusionFilter(filterConfig.getInitParameter("filter-exclude"))
+						.withLoginPageInstalled(true));
+		m_formBasedAccessController = BEANS.get(FormBasedAccessController.class)
+				.init(new FormBasedAuthConfig()
+						.withCredentialVerifier(BEANS.get(ConfigFileCredentialVerifier.class)));
+		m_developmentAccessController = BEANS.get(DevelopmentAccessController.class).init();
+	}
 
-  @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) 
-		  throws IOException, ServletException 
-  {
-    final HttpServletRequest req = (HttpServletRequest) request;
-    final HttpServletResponse resp = (HttpServletResponse) response;
-    m_anonymousAccessController.handle(req, resp, chain);
-  }
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+		final HttpServletRequest req = (HttpServletRequest) request;
+		final HttpServletResponse resp = (HttpServletResponse) response;
 
-  @Override
-  public void destroy() {
-	  m_anonymousAccessController.destroy();
-  }
+		if (m_trivialAccessController.handle(req, resp, chain)) {
+			return;
+		}
+
+		if (m_formBasedAccessController.handle(req, resp, chain)) {
+			return;
+		}
+
+		if (m_developmentAccessController.handle(req, resp, chain)) {
+			return;
+		}
+
+		BEANS.get(ServletFilterHelper.class).forwardToLoginForm(req, resp);
+	}
+
+	@Override
+	public void destroy() {
+		m_developmentAccessController.destroy();
+		m_formBasedAccessController.destroy();
+		m_trivialAccessController.destroy();
+	}
+
 }

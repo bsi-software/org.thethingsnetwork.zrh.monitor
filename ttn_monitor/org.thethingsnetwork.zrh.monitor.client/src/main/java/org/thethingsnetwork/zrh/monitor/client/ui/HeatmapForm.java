@@ -22,6 +22,7 @@ import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.Order;
 import org.eclipse.scout.rt.platform.config.CONFIG;
 import org.eclipse.scout.rt.shared.TEXTS;
+import org.eclipse.scout.rt.shared.ui.UserAgentUtility;
 import org.eclipse.scout.widgets.heatmap.client.ui.form.fields.heatmapfield.AbstractHeatmapField;
 import org.eclipse.scout.widgets.heatmap.client.ui.form.fields.heatmapfield.HeatPoint;
 import org.eclipse.scout.widgets.heatmap.client.ui.form.fields.heatmapfield.HeatmapViewParameter;
@@ -231,7 +232,12 @@ public class HeatmapForm extends AbstractForm {
 				
 				@Override
 				protected int getConfiguredGridH() {
-					return 5;
+					if(UserAgentUtility.isMobileDevice()) {
+						return 8;
+					}
+					else {
+						return 5;
+					}
 				}
 
 				@Override

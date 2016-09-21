@@ -14,15 +14,18 @@ import org.thethingsnetwork.zrh.monitor.client.ConfigProperties;
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.GatewayFavoritesProperty;
 import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.NodeFavoritesProperty;
 
-// TODO initially populate gateways using http://ttnstatus.org/gateways
 public class TheThingsNetworkModel {
+	
 	public static int MESSAGE_QUEUE_SIZE = 100;
+	public static boolean DEMO_MODE = false;
 
 	private Map<String, Gateway> m_gateway = null;
 	private Map<String, Node> m_node = null;
 
 	private List<String> m_gatewayFavorite = null;
 	private List<String> m_nodeFavorite = null;
+
+	private int m_messages = 0;
 
 	public TheThingsNetworkModel() {
 		m_gatewayFavorite = getStringList(CONFIG.getPropertyValue(GatewayFavoritesProperty.class));
@@ -33,10 +36,18 @@ public class TheThingsNetworkModel {
 	public Message addMessage(String message) {
 		Message m = new Message(message);
 
+		// demo mode: reset model if live map does no longer change much
+		if(DEMO_MODE) {
+			if(m_messages >= 700) {
+				m_messages = 0;
+				reset();
+			}
+		}
+
 		if(m.parsedOk()) {
 			if(m.isNodeMessage()) {
 				updateNodes(m);
-				
+
 				if(getNode(m.getNodeEui()).isNoiseNode()) {
 					m.setNoiseMessage(true);
 					m.setSource(Message.SOURCE_NOISE);
@@ -44,8 +55,9 @@ public class TheThingsNetworkModel {
 			}
 
 			updateGateways(m);
+			m_messages++;
 		}
-		
+
 		return m;
 	}
 
@@ -88,7 +100,7 @@ public class TheThingsNetworkModel {
 
 	public Gateway getGateway(String eui) {
 		Gateway gateway = m_gateway.get(eui);
-		
+
 		if(gateway != null) {
 			return gateway;
 		}
@@ -122,7 +134,7 @@ public class TheThingsNetworkModel {
 
 	public Node getNode(String eui) {
 		Node node = m_node.get(eui);
-		
+
 		if(node != null) {
 			return node;
 		}
@@ -142,13 +154,13 @@ public class TheThingsNetworkModel {
 
 		return messages;
 	}
-	
+
 	public List<Message> getNoiseMessages() {
 		List<Message> messages = new ArrayList<>();
 
 		for(String nodeEui: getNodeEuis()) {
 			Node node = getNode(nodeEui);
-			
+
 			if(node.isNoiseNode()) {
 				messages.addAll(node.getMessages());
 			}
@@ -156,7 +168,7 @@ public class TheThingsNetworkModel {
 
 		return messages;
 	}
-	
+
 	public void addToFavorites(String eui, boolean isNode) {
 		if(isNode) {
 			m_nodeFavorite.add(eui);
@@ -211,7 +223,7 @@ public class TheThingsNetworkModel {
 					m_gateway.remove(eui);
 				}
 			}
-			
+
 			for(String eui: getNodeEuis()) {
 				if(m_nodeFavorite.contains(eui)) {
 					getNode(eui).reset();
@@ -221,7 +233,7 @@ public class TheThingsNetworkModel {
 				}
 			}
 		}	
-		
+
 	}
 
 

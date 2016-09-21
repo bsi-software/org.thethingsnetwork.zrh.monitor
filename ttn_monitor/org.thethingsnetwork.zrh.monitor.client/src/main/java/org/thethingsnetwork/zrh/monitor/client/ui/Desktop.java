@@ -120,16 +120,16 @@ public class Desktop extends AbstractDesktop {
 	}
 
 	@Order(1000.0)
-	public class WorkOutlineViewButton extends AbstractOutlineViewButton {
+	public class MonitorOutlineViewButton extends AbstractOutlineViewButton {
 
-		public WorkOutlineViewButton() {
+		public MonitorOutlineViewButton() {
 			this(TheThingsNetworkOutline.class);
 		}
 
-		protected WorkOutlineViewButton(Class<? extends TheThingsNetworkOutline> outlineClass) {
+		protected MonitorOutlineViewButton(Class<? extends TheThingsNetworkOutline> outlineClass) {
 			super(Desktop.this, outlineClass);
 		}
-
+		
 		@Override
 		protected String getConfiguredKeyStroke() {
 			return IKeyStroke.F2;

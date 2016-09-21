@@ -9,8 +9,11 @@ import java.util.TimeZone;
 
 import org.eclipse.scout.rt.platform.util.StringUtility;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Message {
+	private static final Logger LOG = LoggerFactory.getLogger(Message.class);
 	
 	public static final String EUI = "eui";
 	public static final String NODE_EUI_1 = "node_eui";
@@ -20,7 +23,7 @@ public class Message {
 	public static final String TIME = "time";
 	public static final String LATITUDE = "latitude";
 	public static final String LONGITUDE = "longitude";
-	public static final String FORMAT_TIMESTAMP = "yyyy-MM-ddHH:mm:ss.SSS";
+	public static final String FORMAT_TIMESTAMP = "yyyy-MM-ddHH:mm:ss";
 	public static final String DATA = "data";
 	
 	public static final int TYPE_GATEWAY = 1;
@@ -57,13 +60,15 @@ public class Message {
 			
 			try {
 				String d = time.substring(0, 10);
-				String t = time.substring(11, 22);
+				String t = time.substring(11,19);
 				m_timestamp = format.parse(d + t);
 			} 
 			catch (ParseException e) {
 				m_parsedOk = false;
 			}		
 		}
+		
+		LOG.debug("{ " + StringUtility.join(",", json.keySet()) + " }");
 		
 		// gateway message
 		if(json.has(EUI)) {

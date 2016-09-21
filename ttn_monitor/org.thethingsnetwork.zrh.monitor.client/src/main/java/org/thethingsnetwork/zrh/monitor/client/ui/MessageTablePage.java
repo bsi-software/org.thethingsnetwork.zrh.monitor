@@ -16,18 +16,14 @@ import org.eclipse.scout.rt.client.ui.basic.table.columns.AbstractDateTimeColumn
 import org.eclipse.scout.rt.client.ui.basic.table.columns.AbstractIntegerColumn;
 import org.eclipse.scout.rt.client.ui.basic.table.columns.AbstractStringColumn;
 import org.eclipse.scout.rt.client.ui.desktop.IDesktop;
-import org.eclipse.scout.rt.client.ui.desktop.OpenUriAction;
 import org.eclipse.scout.rt.client.ui.desktop.outline.pages.AbstractPageWithTable;
 import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.Order;
-import org.eclipse.scout.rt.platform.config.CONFIG;
 import org.eclipse.scout.rt.platform.exception.ProcessingException;
 import org.eclipse.scout.rt.platform.util.CollectionUtility;
 import org.eclipse.scout.rt.platform.util.StringUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
 import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
-import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.RestUrlGatewaysProperty;
-import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.RestUrlNodesProperty;
 import org.thethingsnetwork.zrh.monitor.client.ui.MessageTablePage.Table.AccNoiseLevelColumn;
 import org.thethingsnetwork.zrh.monitor.client.ui.MessageTablePage.Table.CompleteTextColumn;
 import org.thethingsnetwork.zrh.monitor.client.ui.MessageTablePage.Table.DataColumn;
@@ -403,32 +399,6 @@ public class MessageTablePage extends AbstractPageWithTable<MessageTablePage.Tab
 			@Override
 			protected String getConfiguredKeyStroke() {
 				return "F6";
-			}
-		}
-
-		@Order(2000.0)
-		public class OpenMessageRestMenu extends AbstractMenu {
-			@Override
-			protected String getConfiguredText() {
-				return TEXTS.get("OpenRest");
-			}
-
-			@Override
-			protected void execInitAction() {
-				setVisible(getParentPage() == null);
-			}
-
-			@Override
-			protected void execAction() {
-				String gatewayEui = (String) getSelectedRow().getCell(getGatewayEuiColumn()).getValue();
-				String nodeEui = (String) getSelectedRow().getCell(getNodeEuiColumn()).getValue();
-				String restUrl = CONFIG.getPropertyValue(RestUrlGatewaysProperty.class) + gatewayEui;
-
-				if(nodeEui != null) {
-					restUrl = CONFIG.getPropertyValue(RestUrlNodesProperty.class) + nodeEui;
-				}
-
-				getDesktop().openUri(restUrl, OpenUriAction.NEW_WINDOW);
 			}
 		}
 	}

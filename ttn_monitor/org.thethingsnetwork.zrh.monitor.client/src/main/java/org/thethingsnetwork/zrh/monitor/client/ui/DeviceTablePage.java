@@ -20,21 +20,16 @@ import org.eclipse.scout.rt.client.ui.basic.table.columns.AbstractBooleanColumn;
 import org.eclipse.scout.rt.client.ui.basic.table.columns.AbstractIntegerColumn;
 import org.eclipse.scout.rt.client.ui.basic.table.columns.AbstractStringColumn;
 import org.eclipse.scout.rt.client.ui.desktop.IDesktop;
-import org.eclipse.scout.rt.client.ui.desktop.OpenUriAction;
 import org.eclipse.scout.rt.client.ui.desktop.outline.pages.AbstractPageWithTable;
 import org.eclipse.scout.rt.client.ui.desktop.outline.pages.IPage;
 import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.Order;
-import org.eclipse.scout.rt.platform.config.CONFIG;
 import org.eclipse.scout.rt.platform.exception.ProcessingException;
 import org.eclipse.scout.rt.platform.util.CollectionUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
 import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
 import org.eclipse.scout.widgets.heatmap.client.ui.form.fields.heatmapfield.HeatmapViewParameter;
 import org.eclipse.scout.widgets.heatmap.client.ui.form.fields.heatmapfield.MapPoint;
-import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.RestUrlGatewaysProperty;
-import org.thethingsnetwork.zrh.monitor.client.ConfigProperties.RestUrlNodesProperty;
-import org.thethingsnetwork.zrh.monitor.client.ui.DeviceTablePage.Table.AddToMyDeviceMenu;
 import org.thethingsnetwork.zrh.monitor.client.ui.DeviceTablePage.Table.EuiColumn;
 import org.thethingsnetwork.zrh.monitor.client.ui.DeviceTablePage.Table.LatitudeColumn;
 import org.thethingsnetwork.zrh.monitor.client.ui.DeviceTablePage.Table.LongitudeColumn;
@@ -42,7 +37,6 @@ import org.thethingsnetwork.zrh.monitor.client.ui.DeviceTablePage.Table.Messages
 import org.thethingsnetwork.zrh.monitor.client.ui.DeviceTablePage.Table.NameColumn;
 import org.thethingsnetwork.zrh.monitor.client.ui.DeviceTablePage.Table.NoiseColumn;
 import org.thethingsnetwork.zrh.monitor.client.ui.DeviceTablePage.Table.RemoveMenu;
-import org.thethingsnetwork.zrh.monitor.client.ui.MessageTablePage.Table.OpenMessageRestMenu;
 import org.thethingsnetwork.zrh.monitor.model.Device;
 import org.thethingsnetwork.zrh.monitor.model.Location;
 import org.thethingsnetwork.zrh.monitor.model.Node;
@@ -171,7 +165,6 @@ public class DeviceTablePage extends AbstractPageWithTable<DeviceTablePage.Table
 	@Override
 	protected IPage<MessageTablePage.Table> execCreateChildPage(ITableRow row) throws ProcessingException {
 		MessageTablePage messagePage = new MessageTablePage(null);
-		messagePage.getTable().getMenuByClass(OpenMessageRestMenu.class).setVisible(false);
 
 		if(row != null) {
 			if(m_isNodePage) {
@@ -188,7 +181,7 @@ public class DeviceTablePage extends AbstractPageWithTable<DeviceTablePage.Table
 	public void setFavoritesPage(boolean isFavoritePage) {
 		m_favoritesOnly = isFavoritePage;
 		getTable().getMenuByClass(RemoveMenu.class).setVisible(m_favoritesOnly);
-		getTable().getMenuByClass(AddToMyDeviceMenu.class).setVisible(!m_favoritesOnly);
+//		getTable().getMenuByClass(AddToMyDeviceMenu.class).setVisible(!m_favoritesOnly);
 	}
 
 	public boolean isFavoritesPage() {
@@ -319,31 +312,6 @@ public class DeviceTablePage extends AbstractPageWithTable<DeviceTablePage.Table
 					String eui = (String) row.getKeyValues().get(0);
 					model.addToFavorites(eui, m_isNodePage);
 				}
-			}
-		}
-
-		@Order(3000.0)
-		public class OpenRestMenu extends AbstractMenu {
-			@Override
-			protected String getConfiguredText() {
-				return TEXTS.get("OpenRest");
-			}
-
-			@Override
-			protected Set<? extends IMenuType> getConfiguredMenuTypes() {
-				return CollectionUtility.hashSet(TableMenuType.SingleSelection);
-			}
-
-			@Override
-			protected void execAction() {
-				String eui = (String) getSelectedRow().getCell(getEuiColumn()).getValue();
-				String restUrl = CONFIG.getPropertyValue(RestUrlGatewaysProperty.class) + eui;
-
-				if(m_isNodePage) {
-					restUrl = CONFIG.getPropertyValue(RestUrlNodesProperty.class) + eui;
-				}
-
-				getDesktop().openUri(restUrl, OpenUriAction.NEW_WINDOW);
 			}
 		}
 

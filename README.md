@@ -89,9 +89,8 @@ docker rmi eclipsescout/org.thethingsnetwork.zrh.monitor:latest
 ### Docker Login
 In case of docker login issues there might be a problem with the default index registry, see the hints provided on [Stackoverflow](http://stackoverflow.com/questions/33748919/why-does-docker-login-fail-in-docker-quickstart-terminal-but-work-from-within)
 
-### Building the image with the potify Docker plugin
+### Building the image with the Spotify Docker plugin
 At times changes of the app don't make it into the docker image. In this case, there might be some old jars cached.
-
 Things to try:
 -	Use mvn clean on the top level pom and rebuild from there
 -	Delete the content in the local .m2 repo:  C:\Users\mzi\.m2\repository\org\thethingsnetwork

@@ -21,10 +21,11 @@ public class TheThingsNetworkOutline extends AbstractOutline {
 		super.execCreateChildPages(pageList);
 				
 		GatewayTablePage gatewayPage;	
-		NodeTablePage nodePage;
+//		NodeTablePage nodePage;
 		MessageTablePage messagePage;
 		
 		pageList.add(new HeatmapPage());
+		
 //		pageList.add(new NoisemapPage());
 //
 //		gatewayPage = new GatewayTablePage(TEXTS.get("MyGateways"));
@@ -41,9 +42,9 @@ public class TheThingsNetworkOutline extends AbstractOutline {
 		gatewayPage.setFavoritesPage(false);
 		pageList.add(gatewayPage);
 		
-		nodePage = new NodeTablePage(TEXTS.get("AllNodes"));
-		nodePage.setFavoritesPage(false);
-		pageList.add(nodePage);
+//		nodePage = new NodeTablePage(TEXTS.get("AllNodes"));
+//		nodePage.setFavoritesPage(false);
+//		pageList.add(nodePage);
 		
 		messagePage = new MessageTablePage(TEXTS.get("AllMessages"));
 		pageList.add(messagePage);		

@@ -111,8 +111,7 @@
 
 	<repositories>
 		<repository>
-			<name>Paho MQTT Client</name>
-			<id>org.eclipse.paho</id>
+			<id>Eclipse Paho Repo</id>
 			<url>https://repo.eclipse.org/content/repositories/paho-releases/</url>
 		</repository>
 	</repositories>
